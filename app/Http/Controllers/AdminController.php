@@ -1,0 +1,504 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\Antrian;
+use App\Models\Poli;
+use App\Models\RiwayatPanggilan;
+use App\Services\TTSService;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
+class AdminController extends Controller
+{
+    public function dashboard()
+    {
+        $totalUsers = User::count();
+        $totalAntrian = Antrian::count();
+        $antrianHariIni = Antrian::whereDate('created_at', today())->count();
+        $polis = Poli::count();
+
+        // Get counts for each poli
+        $poliUmumCount = Antrian::whereHas('poli', function ($query) {
+            $query->where('nama_poli', 'umum');
+        })->where('status', 'menunggu')->count();
+
+        $poliGigiCount = Antrian::whereHas('poli', function ($query) {
+            $query->where('nama_poli', 'gigi');
+        })->where('status', 'menunggu')->count();
+
+        $poliJiwaCount = Antrian::whereHas('poli', function ($query) {
+            $query->where('nama_poli', 'kesehatan jiwa');
+        })->where('status', 'menunggu')->count();
+
+        $poliTradisionalCount = Antrian::whereHas('poli', function ($query) {
+            $query->where('nama_poli', 'kesehatan tradisional');
+        })->where('status', 'menunggu')->count();
+
+        // Get recent antrian
+        $antrianTerbaru = Antrian::with(['user', 'poli'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalUsers',
+            'totalAntrian',
+            'antrianHariIni',
+            'polis',
+            'poliUmumCount',
+            'poliGigiCount',
+            'poliJiwaCount',
+            'poliTradisionalCount',
+            'antrianTerbaru'
+        ));
+    }
+
+    public function manageUsers(Request $request)
+    {
+        $query = User::with(['antrians.poli']);
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('no_ktp', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%")
+                    ->orWhere('alamat', 'like', "%{$search}%")
+                    ->orWhere('pekerjaan', 'like', "%{$search}%")
+                    ->orWhere('jenis_kelamin', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+        return view('admin.users.index', compact('users'));
+    }
+
+    public function showUser(User $user)
+    {
+        $user->load(['antrians.poli']);
+        return view('admin.users.show', compact('user'));
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
+            'no_hp' => 'required|string|max:20',
+            'no_ktp' => 'required|string|max:50|unique:users,no_ktp,' . $user->id,
+            'pekerjaan' => 'required|string|max:100',
+        ]);
+
+        try {
+            $user->update([
+                'nama' => $request->nama,
+                'alamat' => $request->alamat,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'no_hp' => $request->no_hp,
+                'no_ktp' => $request->no_ktp,
+                'pekerjaan' => $request->pekerjaan,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data user berhasil diperbarui!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function resetUserPassword(Request $request, User $user)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        try {
+            $user->update([
+                'password' => Hash::make($request->new_password)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password user berhasil direset!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function laporan(Request $request)
+    {
+        $query = Antrian::with(['user', 'poli']);
+
+        // Filter berdasarkan tanggal
+        if ($request->filled('tanggal_mulai')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_akhir);
+        }
+
+        // Filter berdasarkan poli
+        if ($request->filled('poli_id')) {
+            $query->where('poli_id', $request->poli_id);
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter berdasarkan jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('jenis_kelamin', $request->jenis_kelamin);
+            });
+        }
+
+        $antrian = $query->orderBy('created_at', 'desc')->get();
+        $polis = Poli::all();
+
+        // Statistik
+        $totalAntrian = $antrian->count();
+        $antrianSelesai = $antrian->where('status', 'selesai')->count();
+        $antrianMenunggu = $antrian->where('status', 'menunggu')->count();
+        $antrianSedang = $antrian->where('status', 'sedang')->count();
+
+        return view('admin.laporan.index', compact('antrian', 'polis', 'totalAntrian', 'antrianSelesai', 'antrianMenunggu', 'antrianSedang'));
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $query = Antrian::with(['user', 'poli']);
+
+        // Filter berdasarkan tanggal
+        if ($request->filled('tanggal_mulai')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_akhir);
+        }
+
+        // Filter berdasarkan poli
+        if ($request->filled('poli_id')) {
+            $query->where('poli_id', $request->poli_id);
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter berdasarkan jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('jenis_kelamin', $request->jenis_kelamin);
+            });
+        }
+
+        $antrian = $query->orderBy('created_at', 'desc')->get();
+
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact('antrian'));
+        return $pdf->download('laporan-antrian-' . date('Y-m-d') . '.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $query = Antrian::with(['user', 'poli']);
+
+        // Filter berdasarkan tanggal
+        if ($request->filled('tanggal_mulai')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_akhir);
+        }
+
+        // Filter berdasarkan poli
+        if ($request->filled('poli_id')) {
+            $query->where('poli_id', $request->poli_id);
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter berdasarkan jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('jenis_kelamin', $request->jenis_kelamin);
+            });
+        }
+
+        $antrian = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'laporan-antrian-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($antrian) {
+            $file = fopen('php://output', 'w');
+
+            // Header CSV
+            fputcsv($file, [
+                'No Antrian',
+                'Nama Pasien',
+                'No KTP',
+                'Jenis Kelamin',
+                'Poli',
+                'Status',
+                'Tanggal Daftar',
+                'Waktu Daftar',
+                'Waktu Panggil'
+            ]);
+
+            // Data CSV
+            foreach ($antrian as $item) {
+                fputcsv($file, [
+                    $item->no_antrian,
+                    $item->user->nama,
+                    $item->user->no_ktp,
+                    $item->user->jenis_kelamin,
+                    $item->poli->nama_poli,
+                    ucfirst($item->status),
+                    $item->created_at ? $item->created_at->format('d/m/Y') : '-',
+                    $item->created_at ? $item->created_at->format('H:i') : '-',
+                    $item->waktu_panggil ? $item->waktu_panggil->format('H:i') : '-'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function poliUmum()
+    {
+        $antrians = Antrian::with(['user', 'poli'])
+            ->whereHas('poli', function ($query) {
+                $query->where('nama_poli', 'umum');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $title = 'Poli Umum';
+        return view('admin.poli.index', compact('antrians', 'title'));
+    }
+
+    public function poliGigi()
+    {
+        $antrians = Antrian::with(['user', 'poli'])
+            ->whereHas('poli', function ($query) {
+                $query->where('nama_poli', 'gigi');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $title = 'Poli Gigi';
+        return view('admin.poli.index', compact('antrians', 'title'));
+    }
+
+    public function poliJiwa()
+    {
+        $antrians = Antrian::with(['user', 'poli'])
+            ->whereHas('poli', function ($query) {
+                $query->where('nama_poli', 'kesehatan jiwa');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $title = 'Poli Jiwa';
+        return view('admin.poli.index', compact('antrians', 'title'));
+    }
+
+    public function poliTradisional()
+    {
+        $antrians = Antrian::with(['user', 'poli'])
+            ->whereHas('poli', function ($query) {
+                $query->where('nama_poli', 'kesehatan tradisional');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $title = 'Poli Tradisional';
+        return view('admin.poli.index', compact('antrians', 'title'));
+    }
+
+    public function panggilAntrian(Request $request)
+    {
+        try {
+            // Get the next waiting queue
+            $antrian = Antrian::where('status', 'menunggu')
+                ->orderBy('created_at', 'asc')
+                ->first();
+
+            if (!$antrian) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada antrian yang menunggu'
+                ]);
+            }
+
+            // Update status to 'dipanggil'
+            $antrian->update(['status' => 'dipanggil']);
+
+            // Record call history
+            RiwayatPanggilan::create([
+                'antrian_id' => $antrian->id,
+                'waktu_panggilan' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian ' . $antrian->no_antrian . ' dipanggil'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function panggilAntrianById(Antrian $antrian)
+    {
+        try {
+            if ($antrian->status !== 'menunggu') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Antrian ini tidak dalam status menunggu'
+                ]);
+            }
+
+            // Update status to 'dipanggil'
+            $antrian->update(['status' => 'dipanggil']);
+
+            // Record call history
+            RiwayatPanggilan::create([
+                'antrian_id' => $antrian->id,
+                'waktu_panggilan' => now()
+            ]);
+
+            // Generate TTS audio sequence
+            $ttsService = new TTSService();
+            $audioSequence = $ttsService->createCompleteAudioSequence(
+                $antrian->poli->nama_poli,
+                $antrian->no_antrian
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian ' . $antrian->no_antrian . ' dipanggil',
+                'audio_sequence' => $audioSequence,
+                'poli_name' => $antrian->poli->nama_poli,
+                'queue_number' => $antrian->no_antrian
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function selesaiAntrian(Request $request)
+    {
+        try {
+            $request->validate([
+                'antrian_id' => 'required|exists:antrians,id'
+            ]);
+
+            $antrian = Antrian::findOrFail($request->antrian_id);
+
+            if ($antrian->status !== 'dipanggil') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Antrian ini tidak dalam status dipanggil'
+                ]);
+            }
+
+            // Update status to 'selesai'
+            $antrian->update(['status' => 'selesai']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian ' . $antrian->no_antrian . ' selesai'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function batalAntrian(Request $request)
+    {
+        try {
+            $request->validate([
+                'antrian_id' => 'required|exists:antrians,id'
+            ]);
+
+            $antrian = Antrian::findOrFail($request->antrian_id);
+
+            if ($antrian->status === 'selesai') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Antrian yang sudah selesai tidak dapat dibatalkan'
+                ]);
+            }
+
+            // Update status to 'batal'
+            $antrian->update(['status' => 'batal']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian ' . $antrian->no_antrian . ' dibatalkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function cetakAntrian(Antrian $antrian)
+    {
+        try {
+            $antrian->load(['user', 'poli']);
+
+            $pdf = Pdf::loadView('admin.antrian.print', compact('antrian'));
+            return $pdf->stream('antrian-' . $antrian->no_antrian . '.pdf');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+}
