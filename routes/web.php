@@ -80,6 +80,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/laporan/export-excel', [AdminController::class, 'exportExcel'])->name('admin.laporan.export-excel');
 
     // Antrian Routes
+    Route::get('/admin/antrian/tambah', [AdminController::class, 'tambahAntrian'])->name('admin.antrian.tambah');
+    Route::post('/admin/antrian/cari-user', [AdminController::class, 'cariUser'])->name('admin.antrian.cari-user');
+    Route::post('/admin/antrian/store', [AdminController::class, 'storeAntrianAdmin'])->name('admin.antrian.store');
     Route::get('/admin/antrian/{antrian}/cetak', [AdminController::class, 'cetakAntrian'])->name('admin.antrian.cetak');
 
     // TTS Routes

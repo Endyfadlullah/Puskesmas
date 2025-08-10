@@ -8,11 +8,15 @@ use App\Models\User;
 use App\Models\Poli;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         // Get user's own queues
         $antrianSaya = Antrian::with(['user', 'poli'])
             ->where('user_id', Auth::id())
@@ -25,6 +29,9 @@ class DashboardController extends Controller
 
     public function addQueue(Request $request)
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $request->validate([
             'poli_id' => 'required|exists:polis,id'
         ]);
@@ -71,19 +78,27 @@ class DashboardController extends Controller
             // Get poli info for prefix
             $prefix = $this->getPoliPrefix($poli->nama_poli);
 
-            // Get next queue number for the poli
+            // Get next queue number for the poli - perbaikan logika
             $lastQueue = Antrian::where('poli_id', $request->poli_id)
                 ->whereDate('created_at', today())
-                ->max('no_antrian');
+                ->orderBy('id', 'desc')
+                ->first();
 
             // Extract number from last queue (remove prefix)
             $lastNumber = 0;
-            if ($lastQueue) {
-                $lastNumber = (int) preg_replace('/[^0-9]/', '', $lastQueue);
+            if ($lastQueue && $lastQueue->no_antrian) {
+                // Extract only the numeric part after the prefix
+                $lastNumber = (int) preg_replace('/^[A-Z]+/', '', $lastQueue->no_antrian);
+
+                // Debug log
+                \Log::info("Last queue: {$lastQueue->no_antrian}, Extracted number: {$lastNumber}");
             }
 
             $nextNumber = $lastNumber + 1;
             $nextQueueNumber = $prefix . $nextNumber;
+
+            // Debug log
+            \Log::info("Generated next queue number: {$nextQueueNumber} for poli: {$poliName}");
 
             // Create new queue using current user's data
             $antrian = Antrian::create([
@@ -185,6 +200,36 @@ class DashboardController extends Controller
                 return 'T';
             default:
                 return 'A'; // Default prefix
+        }
+    }
+
+    /**
+     * Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+     * tanpa dikonfirmasi selesai oleh admin
+     */
+    private function autoBatalkanAntrianLama()
+    {
+        try {
+            // Cari antrian yang sudah dipanggil lebih dari 5 menit
+            $antrianLama = Antrian::where('status', 'dipanggil')
+                ->where('waktu_panggil', '<=', now()->subMinutes(5))
+                ->get();
+
+            foreach ($antrianLama as $antrian) {
+                // Update status menjadi 'batal'
+                $antrian->update(['status' => 'batal']);
+
+                // Log untuk tracking (optional)
+                \Log::info("Antrian {$antrian->no_antrian} otomatis dibatalkan karena lewat 5 menit sejak dipanggil");
+            }
+
+            // Jika ada antrian yang dibatalkan, log jumlahnya
+            if ($antrianLama->count() > 0) {
+                \Log::info("Total {$antrianLama->count()} antrian otomatis dibatalkan karena timeout");
+            }
+        } catch (\Exception $e) {
+            // Log error jika terjadi masalah
+            \Log::error("Error saat auto-batalkan antrian: " . $e->getMessage());
         }
     }
 

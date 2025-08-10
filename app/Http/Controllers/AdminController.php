@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Antrian;
@@ -76,7 +77,7 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->get();
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.users.index', compact('users'));
     }
 
@@ -525,6 +526,119 @@ class AdminController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function tambahAntrian()
+    {
+        $polis = Poli::all();
+        return view('admin.antrian.tambah', compact('polis'));
+    }
+
+    public function cariUser(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|string|min:3'
+        ]);
+
+        $users = User::where('nama', 'like', "%{$request->search}%")
+            ->orWhere('no_ktp', 'like', "%{$request->search}%")
+            ->orWhere('no_hp', 'like', "%{$request->search}%")
+            ->limit(10)
+            ->get(['id', 'nama', 'no_ktp', 'no_hp', 'jenis_kelamin', 'alamat']);
+
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
+    }
+
+    public function storeAntrianAdmin(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'poli_id' => 'required|exists:polis,id'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $user = User::findOrFail($request->user_id);
+            $poli = Poli::findOrFail($request->poli_id);
+
+            // Check if user already has active queue in this poli today
+            $existingQueue = Antrian::where('user_id', $request->user_id)
+                ->where('poli_id', $request->poli_id)
+                ->whereDate('created_at', today())
+                ->whereIn('status', ['menunggu', 'dipanggil'])
+                ->first();
+
+            if ($existingQueue) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User ini sudah memiliki antrian aktif di ' . $poli->nama_poli . ' hari ini.'
+                ]);
+            }
+
+            // Get poli prefix
+            $prefix = $this->getPoliPrefix($poli->nama_poli);
+
+            // Get next queue number for the poli
+            $lastQueue = Antrian::where('poli_id', $request->poli_id)
+                ->whereDate('created_at', today())
+                ->orderBy('id', 'desc')
+                ->first();
+
+            // Extract number from last queue (remove prefix)
+            $lastNumber = 0;
+            if ($lastQueue && $lastQueue->no_antrian) {
+                $lastNumber = (int) preg_replace('/^[A-Z]+/', '', $lastQueue->no_antrian);
+            }
+
+            $nextNumber = $lastNumber + 1;
+            $nextQueueNumber = $prefix . $nextNumber;
+
+            // Create new queue
+            $antrian = Antrian::create([
+                'user_id' => $request->user_id,
+                'poli_id' => $request->poli_id,
+                'no_antrian' => $nextQueueNumber,
+                'tanggal_antrian' => now()->toDateString(),
+                'status' => 'menunggu'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian berhasil dibuat untuk ' . $user->nama . ' di ' . $poli->nama_poli . ' dengan nomor ' . $nextQueueNumber,
+                'antrian' => [
+                    'id' => $antrian->id,
+                    'no_antrian' => $nextQueueNumber,
+                    'poli_name' => $poli->nama_poli,
+                    'user_name' => $user->nama,
+                    'status' => 'menunggu'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function getPoliPrefix($namaPoli)
+    {
+        $prefixMap = [
+            'umum' => 'U',
+            'gigi' => 'G',
+            'kesehatan jiwa' => 'J',
+            'kesehatan tradisional' => 'T'
+        ];
+
+        return $prefixMap[strtolower($namaPoli)] ?? 'A';
     }
 
     public function cetakAntrian(Antrian $antrian)

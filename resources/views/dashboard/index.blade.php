@@ -634,9 +634,50 @@
                                 title: 'Berhasil!',
                                 text: data.message,
                                 confirmButtonText: 'OK',
-                                confirmButtonColor: '#10B981'
+                                confirmButtonColor: '#10B981',
+                                timer: 3000, // Auto close after 3 seconds
+                                timerProgressBar: true,
+                                showConfirmButton: false
                             }).then(() => {
-                                location.reload();
+                                // After success alert closes, show reminder alert
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Pengingat Penting!',
+                                    html: `
+                                    <div class="text-center">
+                                        <div class="mb-4">
+                                            <svg class="w-16 h-16 text-blue-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-lg font-semibold text-gray-800 mb-3">
+                                            Harap Hadir 30 Menit Sebelum Nomor Dipanggil!
+                                        </p>
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                            <div class="flex items-center justify-center mb-2">
+                                                <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <span class="font-medium text-blue-800">Tips:</span>
+                                            </div>
+                                            <ul class="text-sm text-blue-700 text-left space-y-1">
+                                                <li>• Pastikan membawa dokumen yang diperlukan</li>
+                                                <li>• Ikuti protokol kesehatan yang berlaku</li>
+                                                <li>• Tunggu di area yang ditentukan</li>
+                                            </ul>
+                                        </div>
+                                        <p class="text-sm text-gray-600">
+                                            Terima kasih telah menggunakan layanan kami!
+                                        </p>
+                                    </div>
+                                `,
+                                    confirmButtonText: 'Saya Mengerti',
+                                    confirmButtonColor: '#3B82F6',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                }).then(() => {
+                                    location.reload();
+                                });
                             });
                         } else {
                             // Handle different error types
@@ -668,7 +709,7 @@
                                     confirmButtonText: 'OK',
                                     confirmButtonColor: '#F59E0B'
                                 });
-                                                         } else {
+                            } else {
                                 // Generic error
                                 Swal.fire({
                                     icon: 'error',

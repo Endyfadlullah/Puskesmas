@@ -20,8 +20,7 @@
                         </div>
                     </div>
                     <div class="hidden md:flex items-center space-x-4">
-                        <a href="{{ route('display') }}"
-                            class="text-gray-700 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-200">Display</a>
+                        
                         <span class="text-gray-700">Selamat datang, Admin</span>
                         <button onclick="confirmLogout()"
                             class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
