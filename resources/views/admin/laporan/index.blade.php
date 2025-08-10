@@ -182,7 +182,8 @@
                             <div>
                                 <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700 mb-1">Tanggal
                                     Mulai</label>
-                                <input type="date" id="tanggal_mulai" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}"
+                                <input type="date" id="tanggal_mulai" name="tanggal_mulai"
+                                    value="{{ request('tanggal_mulai') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                             </div>
 
@@ -190,7 +191,8 @@
                             <div>
                                 <label for="tanggal_akhir" class="block text-sm font-medium text-gray-700 mb-1">Tanggal
                                     Akhir</label>
-                                <input type="date" id="tanggal_akhir" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
+                                <input type="date" id="tanggal_akhir" name="tanggal_akhir"
+                                    value="{{ request('tanggal_akhir') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                             </div>
 
@@ -201,7 +203,8 @@
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                                     <option value="">Semua Poli</option>
                                     @foreach ($polis as $poli)
-                                        <option value="{{ $poli->id }}" {{ request('poli_id') == $poli->id ? 'selected' : '' }}>
+                                        <option value="{{ $poli->id }}"
+                                            {{ request('poli_id') == $poli->id ? 'selected' : '' }}>
                                             {{ $poli->nama_poli }}
                                         </option>
                                     @endforeach
@@ -214,11 +217,15 @@
                                 <select id="status" name="status"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                                     <option value="">Semua Status</option>
-                                    <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu
+                                    <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>
+                                        Menunggu
                                     </option>
-                                    <option value="sedang" {{ request('status') == 'sedang' ? 'selected' : '' }}>Sedang</option>
-                                    <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                    <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option>
+                                    <option value="sedang" {{ request('status') == 'sedang' ? 'selected' : '' }}>Sedang
+                                    </option>
+                                    <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai
+                                    </option>
+                                    <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal
+                                    </option>
                                 </select>
                             </div>
 
@@ -229,9 +236,11 @@
                                 <select id="jenis_kelamin" name="jenis_kelamin"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                                     <option value="">Semua</option>
-                                    <option value="laki-laki" {{ request('jenis_kelamin') == 'laki-laki' ? 'selected' : '' }}>
+                                    <option value="laki-laki"
+                                        {{ request('jenis_kelamin') == 'laki-laki' ? 'selected' : '' }}>
                                         Laki-laki</option>
-                                    <option value="perempuan" {{ request('jenis_kelamin') == 'perempuan' ? 'selected' : '' }}>
+                                    <option value="perempuan"
+                                        {{ request('jenis_kelamin') == 'perempuan' ? 'selected' : '' }}>
                                         Perempuan</option>
                                 </select>
                             </div>
@@ -260,7 +269,8 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                                             </path>
@@ -334,23 +344,32 @@
                         <div class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-900">Data Antrian</h3>
                         </div>
-                        <div class="overflow-x-auto">
+
+                        <!-- Desktop Table -->
+                        <div class="hidden lg:block overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             No Antrian</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nama Pasien</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Poli</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tanggal</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Waktu Daftar</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Waktu Panggil</th>
                                     </tr>
                                 </thead>
@@ -365,7 +384,8 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div>
-                                                    <div class="text-sm font-medium text-gray-900">{{ $item->user->nama }}</div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $item->user->nama }}
+                                                    </div>
                                                     <div class="text-sm text-gray-500">{{ $item->user->no_ktp }}</div>
                                                 </div>
                                             </td>
@@ -417,6 +437,105 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Mobile Table -->
+                        <div class="lg:hidden">
+                            @forelse($antrian as $item)
+                                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                                    <!-- 4 Kolom Penting untuk Mobile -->
+                                    <div class="grid grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">No
+                                                Antrian</p>
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ $item->no_antrian }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama
+                                                Pasien</p>
+                                            <div class="text-sm font-medium text-gray-900">{{ $item->user->nama }}</div>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Poli</p>
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {{ $item->poli->nama_poli }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                                            </p>
+                                            @if ($item->status == 'menunggu')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Menunggu
+                                                </span>
+                                            @elseif($item->status == 'sedang')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                    Sedang
+                                                </span>
+                                            @elseif($item->status == 'selesai')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Selesai
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    Batal
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Selengkapnya untuk Mobile -->
+                                    <div class="border-t border-gray-100 pt-3">
+                                        <button onclick="toggleLaporanDetails({{ $item->id }})"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                                            <span id="laporan-btn-text-{{ $item->id }}">Selengkapnya</span>
+                                            <svg id="laporan-icon-{{ $item->id }}"
+                                                class="w-4 h-4 ml-1 transform transition-transform" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+
+                                        <!-- Detail Tambahan (Hidden by default) -->
+                                        <div id="laporan-details-{{ $item->id }}" class="hidden mt-3 space-y-2">
+                                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                                <div>
+                                                    <span class="font-medium text-gray-700">No. KTP:</span>
+                                                    <span class="text-gray-600">{{ $item->user->no_ktp }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Tanggal:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $item->created_at ? $item->created_at->format('d/m/Y') : '-' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Waktu Daftar:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $item->created_at ? $item->created_at->format('H:i') : '-' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Waktu Panggil:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $item->waktu_panggil ? $item->waktu_panggil->format('H:i') : '-' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-8 text-center text-gray-500">
+                                    Tidak ada data antrian yang ditemukan
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -492,6 +611,23 @@
                     confirmButtonColor: '#EF4444'
                 });
             @endif
+
+            // Function to toggle details visibility
+            function toggleLaporanDetails(id) {
+                const details = document.getElementById(`laporan-details-${id}`);
+                const buttonText = document.getElementById(`laporan-btn-text-${id}`);
+                const icon = document.getElementById(`laporan-icon-${id}`);
+
+                if (details.classList.contains('hidden')) {
+                    details.classList.remove('hidden');
+                    buttonText.textContent = 'Kurangi';
+                    icon.classList.remove('transform', 'rotate-180');
+                } else {
+                    details.classList.add('hidden');
+                    buttonText.textContent = 'Selengkapnya';
+                    icon.classList.add('transform', 'rotate-180');
+                }
+            }
         </script>
     @endpush
 @endsection

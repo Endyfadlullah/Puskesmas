@@ -30,7 +30,7 @@
 
                     <div class="mt-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3" data-next-queue="poli-umum-next">
                             @forelse($poliUmumNext ?? [] as $antrian)
                                 <div
                                     class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
@@ -68,7 +68,7 @@
 
                     <div class="mt-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3" data-next-queue="poli-gigi-next">
                             @forelse($poliGigiNext ?? [] as $antrian)
                                 <div
                                     class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
@@ -106,7 +106,7 @@
 
                     <div class="mt-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3" data-next-queue="poli-jiwa-next">
                             @forelse($poliJiwaNext ?? [] as $antrian)
                                 <div
                                     class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
@@ -145,7 +145,7 @@
 
                     <div class="mt-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3" data-next-queue="poli-tradisional-next">
                             @forelse($poliTradisionalNext ?? [] as $antrian)
                                 <div
                                     class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
@@ -206,9 +206,9 @@
                         const audioItem = audioSequence[i];
                         await this.playAudioItem(audioItem);
 
-                        // Wait between audio items
+                        // Wait between audio items (1 second gap)
                         if (i < audioSequence.length - 1) {
-                            await this.delay(500);
+                            await this.delay(1000);
                         }
                     }
 
@@ -257,7 +257,7 @@
                                 // Fallback timeout
                                 setTimeout(() => {
                                     resolve();
-                                }, audioItem.duration || 4000);
+                                }, audioItem.duration || 8000);
                             } else {
                                 console.warn('Speech synthesis not supported');
                                 resolve();
@@ -282,7 +282,7 @@
                             // Fallback timeout
                             setTimeout(() => {
                                 resolve();
-                            }, audioItem.duration || 3000);
+                            }, audioItem.duration || 8000);
                         }
                     });
                 }
@@ -362,10 +362,7 @@
                 });
             @endif
 
-            // Auto refresh every 5 seconds
-            setInterval(function() {
-                location.reload();
-            }, 5000);
+            // No more auto refresh - using real-time updates instead
 
             // Add sound effect for new calls
             function playNotificationSound() {
@@ -386,7 +383,7 @@
                 Swal.fire({
                     icon: 'info',
                     title: 'Panggilan Baru!',
-                    text: `Poli ${poliName} memanggil nomor ${number}`,
+                    text: `Antrian selanjutnya poli ${poliName} nomor ${number}`,
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#3B82F6',
                     timer: 5000,
@@ -420,7 +417,98 @@
                 addPulseAnimation();
             });
 
-            // Listen for TTS events from admin panel
+            // Check for new calls using polling (fallback for broadcast)
+            let lastCallTime = new Date().getTime();
+
+            function checkForNewCalls() {
+                fetch('/api/check-new-calls?last_check=' + lastCallTime)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.has_new_call && data.antrian) {
+                            console.log('New call detected:', data.antrian);
+
+                            // Play TTS for the called queue
+                            ttsPlayer.playQueueCall(data.antrian.poli_name, data.antrian.queue_number);
+
+                            // Show notification
+                            showNewCallNotification(data.antrian.poli_name, data.antrian.queue_number);
+
+                            // Add pulse animation to the current number
+                            addPulseAnimation();
+
+                            // Update last check time
+                            lastCallTime = new Date().getTime();
+
+                            // Update display without refresh
+                            updateDisplayData();
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error checking for new calls:', error);
+                    });
+            }
+
+            // Function to update display data without refresh
+            function updateDisplayData() {
+                fetch('/api/display-data')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update current numbers
+                        if (data.poliUmumCurrent) {
+                            document.getElementById('poli-umum-current').textContent = data.poliUmumCurrent.no_antrian;
+                        }
+                        if (data.poliGigiCurrent) {
+                            document.getElementById('poli-gigi-current').textContent = data.poliGigiCurrent.no_antrian;
+                        }
+                        if (data.poliJiwaCurrent) {
+                            document.getElementById('poli-jiwa-current').textContent = data.poliJiwaCurrent.no_antrian;
+                        }
+                        if (data.poliTradisionalCurrent) {
+                            document.getElementById('poli-tradisional-current').textContent = data.poliTradisionalCurrent
+                                .no_antrian;
+                        }
+
+                        // Update next queues
+                        updateNextQueue('poli-umum-next', data.poliUmumNext);
+                        updateNextQueue('poli-gigi-next', data.poliGigiNext);
+                        updateNextQueue('poli-jiwa-next', data.poliJiwaNext);
+                        updateNextQueue('poli-tradisional-next', data.poliTradisionalNext);
+                    })
+                    .catch(error => {
+                        console.log('Error updating display data:', error);
+                    });
+            }
+
+            // Function to update next queue section
+            function updateNextQueue(containerId, nextQueues) {
+                const container = document.querySelector(`[data-next-queue="${containerId}"]`);
+                if (!container) return;
+
+                if (nextQueues && nextQueues.length > 0) {
+                    container.innerHTML = nextQueues.map(antrian => `
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                            <span class="text-lg md:text-xl font-bold text-gray-900">${antrian.no_antrian}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
+                            <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-sm">Tidak ada antrian</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Check for new calls every 3 seconds
+            setInterval(checkForNewCalls, 3000);
+
+            // Update display data every 10 seconds
+            setInterval(updateDisplayData, 10000);
+
+            // Fallback: Listen for TTS events from admin panel (if broadcast not available)
             window.addEventListener('message', function(event) {
                 if (event.data.type === 'TTS_CALL') {
                     const {

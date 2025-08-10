@@ -74,22 +74,21 @@ class TTSController extends Controller
     public function playAudioSequence(Request $request)
     {
         $request->validate([
-            'antrian_id' => 'required|exists:antrians,id'
+            'poli_name' => 'required|string',
+            'queue_number' => 'required|string'
         ]);
 
         try {
-            $antrian = Antrian::with('poli')->findOrFail($request->antrian_id);
-            
             $audioSequence = $this->ttsService->createCompleteAudioSequence(
-                $antrian->poli->nama_poli,
-                $antrian->no_antrian
+                $request->poli_name,
+                $request->queue_number
             );
 
             return response()->json([
                 'success' => true,
                 'audio_sequence' => $audioSequence,
-                'poli_name' => $antrian->poli->nama_poli,
-                'queue_number' => $antrian->no_antrian
+                'poli_name' => $request->poli_name,
+                'queue_number' => $request->queue_number
             ]);
         } catch (\Exception $e) {
             return response()->json([

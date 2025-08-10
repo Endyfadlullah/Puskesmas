@@ -33,6 +33,8 @@ class DashboardController extends Controller
             DB::beginTransaction();
 
             $user = Auth::user();
+            $poli = Poli::find($request->poli_id);
+            $poliName = $poli->nama_poli;
 
             // Check if user already has a queue today for the same poli
             $existingQueue = Antrian::where('user_id', $user->id)
@@ -42,13 +44,31 @@ class DashboardController extends Controller
                 ->first();
 
             if ($existingQueue) {
-                // Get poli name for error message
-                $poliName = Poli::find($request->poli_id)->nama_poli;
+                // Check if request wants JSON response
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'type' => 'existing_queue',
+                        'message' => 'Anda sudah memiliki antrian di ' . $poliName . ' hari ini.',
+                        'existing_queue' => [
+                            'id' => $existingQueue->id,
+                            'no_antrian' => $existingQueue->no_antrian,
+                            'status' => $existingQueue->status,
+                            'created_at' => $existingQueue->created_at->format('H:i'),
+                            'poli_name' => $poliName
+                        ]
+                    ]);
+                }
+
+                // Fallback to redirect for non-AJAX requests
                 return redirect()->back()->with('error', 'Anda sudah memiliki antrian di ' . $poliName . ' hari ini.');
             }
 
+            // Note: User CAN have multiple queues in different polis
+            // We only prevent duplicate queues in the same poli (checked above)
+            // Multi-queue cross-poli is allowed and encouraged
+
             // Get poli info for prefix
-            $poli = Poli::find($request->poli_id);
             $prefix = $this->getPoliPrefix($poli->nama_poli);
 
             // Get next queue number for the poli
@@ -76,12 +96,31 @@ class DashboardController extends Controller
 
             DB::commit();
 
-            // Get poli name for success message
-            $poliName = $poli->nama_poli;
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Antrian berhasil diambil! Nomor antrian Anda di ' . $poliName . ': ' . $nextQueueNumber,
+                    'antrian' => [
+                        'id' => $antrian->id,
+                        'no_antrian' => $nextQueueNumber,
+                        'poli_name' => $poliName,
+                        'status' => 'menunggu'
+                    ]
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Antrian berhasil diambil! Nomor antrian Anda di ' . $poliName . ': ' . $nextQueueNumber);
 
         } catch (\Exception $e) {
             DB::rollback();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat mengambil antrian: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil antrian: ' . $e->getMessage());
         }
     }
@@ -202,7 +241,7 @@ class DashboardController extends Controller
             }
 
             $antrian->load(['user', 'poli']);
-            
+
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('user.antrian.print', compact('antrian'));
             return $pdf->stream('antrian-' . $antrian->no_antrian . '.pdf');
         } catch (\Exception $e) {

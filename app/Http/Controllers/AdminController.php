@@ -86,6 +86,45 @@ class AdminController extends Controller
         return view('admin.users.show', compact('user'));
     }
 
+    public function createUser()
+    {
+        return view('admin.users.create');
+    }
+
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
+            'no_hp' => 'required|string|max:20',
+            'no_ktp' => 'required|string|size:16|unique:users|regex:/^[0-9]+$/',
+            'pekerjaan' => 'required|string|max:100',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'no_ktp.size' => 'Nomor KTP harus tepat 16 digit.',
+            'no_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
+            'no_ktp.unique' => 'Nomor KTP sudah terdaftar.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        try {
+            $user = User::create([
+                'nama' => $request->nama,
+                'alamat' => $request->alamat,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'no_hp' => $request->no_hp,
+                'no_ktp' => $request->no_ktp,
+                'pekerjaan' => $request->pekerjaan,
+                'password' => Hash::make($request->password),
+            ]);
+
+            return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menambahkan user.'])->withInput();
+        }
+    }
+
     public function updateUser(Request $request, User $user)
     {
         $request->validate([
@@ -363,8 +402,11 @@ class AdminController extends Controller
                 ]);
             }
 
-            // Update status to 'dipanggil'
-            $antrian->update(['status' => 'dipanggil']);
+            // Update status to 'dipanggil' and set call time
+            $antrian->update([
+                'status' => 'dipanggil',
+                'waktu_panggil' => now()
+            ]);
 
             // Record call history
             RiwayatPanggilan::create([
@@ -394,8 +436,11 @@ class AdminController extends Controller
                 ]);
             }
 
-            // Update status to 'dipanggil'
-            $antrian->update(['status' => 'dipanggil']);
+            // Update status to 'dipanggil' and set call time
+            $antrian->update([
+                'status' => 'dipanggil',
+                'waktu_panggil' => now()
+            ]);
 
             // Record call history
             RiwayatPanggilan::create([
@@ -403,17 +448,12 @@ class AdminController extends Controller
                 'waktu_panggilan' => now()
             ]);
 
-            // Generate TTS audio sequence
-            $ttsService = new TTSService();
-            $audioSequence = $ttsService->createCompleteAudioSequence(
-                $antrian->poli->nama_poli,
-                $antrian->no_antrian
-            );
+            // Broadcast event for display page
+            event(new \App\Events\AntrianDipanggil($antrian));
 
             return response()->json([
                 'success' => true,
                 'message' => 'Antrian ' . $antrian->no_antrian . ' dipanggil',
-                'audio_sequence' => $audioSequence,
                 'poli_name' => $antrian->poli->nama_poli,
                 'queue_number' => $antrian->no_antrian
             ]);

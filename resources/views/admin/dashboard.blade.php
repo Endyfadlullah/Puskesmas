@@ -223,7 +223,9 @@
                         <div class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-900">Antrian Terbaru</h3>
                         </div>
-                        <div class="overflow-x-auto">
+
+                        <!-- Desktop Table -->
+                        <div class="hidden lg:block overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -308,6 +310,102 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Mobile Table -->
+                        <div class="lg:hidden">
+                            @forelse($antrianTerbaru ?? [] as $antrian)
+                                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                                    <!-- 4 Kolom Penting untuk Mobile -->
+                                    <div class="grid grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">No.
+                                                Antrian</p>
+                                            <span
+                                                class="text-lg font-semibold text-primary">{{ $antrian->no_antrian ?? 'N/A' }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</p>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $antrian->user?->nama ?? 'N/A' }}</div>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Poli</p>
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ $antrian->poli->nama_poli ?? 'N/A' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                                            </p>
+                                            @if (($antrian->status ?? '') == 'menunggu')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Menunggu
+                                                </span>
+                                            @elseif(($antrian->status ?? '') == 'dipanggil')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    Dipanggil
+                                                </span>
+                                            @elseif(($antrian->status ?? '') == 'selesai')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Selesai
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Batal
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Selengkapnya untuk Mobile -->
+                                    <div class="border-t border-gray-100 pt-3">
+                                        <button onclick="toggleDashboardDetails({{ $antrian->id }})"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                                            <span id="dashboard-btn-text-{{ $antrian->id }}">Selengkapnya</span>
+                                            <svg id="dashboard-icon-{{ $antrian->id }}"
+                                                class="w-4 h-4 ml-1 transform transition-transform" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+
+                                        <!-- Detail Tambahan (Hidden by default) -->
+                                        <div id="dashboard-details-{{ $antrian->id }}" class="hidden mt-3 space-y-2">
+                                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                                <div>
+                                                    <span class="font-medium text-gray-700">No. HP:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $antrian->user?->no_hp ?? 'N/A' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Waktu Daftar:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $antrian->created_at?->format('H:i') ?? 'N/A' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-8 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-lg font-medium">Belum ada antrian hari ini</p>
+                                    <p class="text-sm text-gray-400">Antrian akan muncul di sini setelah ada
+                                        pendaftaran</p>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -405,6 +503,25 @@
                         form.submit();
                     }
                 });
+            }
+
+            // Function to toggle dashboard details
+            function toggleDashboardDetails(antrianId) {
+                const detailsElement = document.getElementById(`dashboard-details-${antrianId}`);
+                const buttonTextElement = document.getElementById(`dashboard-btn-text-${antrianId}`);
+                const iconElement = document.getElementById(`dashboard-icon-${antrianId}`);
+
+                if (detailsElement.classList.contains('hidden')) {
+                    detailsElement.classList.remove('hidden');
+                    buttonTextElement.textContent = 'Sembunyikan';
+                    iconElement.classList.remove('transform', 'rotate-180');
+                    iconElement.classList.add('transform', 'rotate-0');
+                } else {
+                    detailsElement.classList.add('hidden');
+                    buttonTextElement.textContent = 'Selengkapnya';
+                    iconElement.classList.remove('transform', 'rotate-0');
+                    iconElement.classList.add('transform', 'rotate-180');
+                }
             }
         </script>
     @endpush

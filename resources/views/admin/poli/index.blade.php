@@ -153,7 +153,8 @@
 
                     <!-- Table -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                        <div class="overflow-x-auto">
+                        <!-- Desktop Table -->
+                        <div class="hidden lg:block overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -254,14 +255,131 @@
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                                     </path>
                                                 </svg>
-                                                <p class="text-lg font-medium">Belum ada antrian</p>
-                                                <p class="text-sm text-gray-400">Antrian akan muncul di sini setelah ada
-                                                    pendaftaran</p>
+                                                <p class="text-lg font-medium">Tidak ada antrian</p>
+                                                <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
                                             </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Mobile Table -->
+                        <div class="lg:hidden">
+                            @forelse($antrians as $antrian)
+                                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                                    <!-- 4 Kolom Penting untuk Mobile -->
+                                    <div class="grid grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">No
+                                                Antrian</p>
+                                            <p class="text-sm font-semibold text-gray-900">{{ $antrian->no_antrian }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</p>
+                                            <p class="text-sm text-gray-900">{{ $antrian->user?->nama }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                                            </p>
+                                            @if ($antrian->status == 'menunggu')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Menunggu
+                                                </span>
+                                            @elseif($antrian->status == 'dipanggil')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    Dipanggil
+                                                </span>
+                                            @elseif($antrian->status == 'selesai')
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Selesai
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Batal
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</p>
+                                            @if ($antrian->status == 'menunggu')
+                                                <button
+                                                    onclick="panggil('{{ route('admin.panggil-antrian-id', $antrian) }}')"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-200">
+                                                    Panggil
+                                                </button>
+                                            @elseif($antrian->status == 'dipanggil')
+                                                <div class="flex space-x-2">
+                                                    <button
+                                                        onclick="selesai('{{ route('admin.selesai-antrian') }}', {{ $antrian->id }})"
+                                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-200">
+                                                        Selesai
+                                                    </button>
+                                                    <button
+                                                        onclick="batal('{{ route('admin.batal-antrian') }}', {{ $antrian->id }})"
+                                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-200">
+                                                        Batal
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <span class="text-gray-400 text-xs">-</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Selengkapnya untuk Mobile -->
+                                    <div class="border-t border-gray-100 pt-3">
+                                        <button onclick="toggleDetails({{ $antrian->id }})"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                                            <span id="btn-text-{{ $antrian->id }}">Selengkapnya</span>
+                                            <svg id="icon-{{ $antrian->id }}"
+                                                class="w-4 h-4 ml-1 transform transition-transform" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+
+                                        <!-- Detail Tambahan (Hidden by default) -->
+                                        <div id="details-{{ $antrian->id }}" class="hidden mt-3 space-y-2">
+                                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Alamat:</span>
+                                                    <span class="text-gray-600">{{ $antrian->user?->alamat }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Jenis Kelamin:</span>
+                                                    <span
+                                                        class="text-gray-600">{{ $antrian->user?->jenis_kelamin }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Nomor HP:</span>
+                                                    <span class="text-gray-600">{{ $antrian->user?->no_hp }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Nomor KTP:</span>
+                                                    <span class="text-gray-600">{{ $antrian->user?->no_ktp }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-8 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-lg font-medium">Tidak ada antrian</p>
+                                    <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -305,27 +423,30 @@
                         .then(r => r.json())
                         .then(d => {
                             if (d.success) {
-                                // Play TTS on display page
-                                if (d.audio_sequence && d.poli_name && d.queue_number) {
-                                    // Send message to display page if it's open
-                                    if (window.opener && !window.opener.closed) {
-                                        window.opener.postMessage({
-                                            type: 'TTS_CALL',
-                                            poliName: d.poli_name,
-                                            queueNumber: d.queue_number,
-                                            audioSequence: d.audio_sequence
-                                        }, '*');
-                                    }
-
-                                    // Also try to play locally if display is not open
-                                    playTTSLocally(d.poli_name, d.queue_number);
-                                }
-
+                                // Show success alert with sound
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Berhasil',
-                                    text: d.message
-                                }).then(() => location.reload());
+                                    title: 'Antrian Dipanggil!',
+                                    text: `Antrian selanjutnya poli ${d.poli_name} nomor ${d.queue_number}`,
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#10B981',
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    showClass: {
+                                        popup: 'animate__animated animate__fadeInDown'
+                                    },
+                                    hideClass: {
+                                        popup: 'animate__animated animate__fadeOutUp'
+                                    }
+                                });
+
+                                // Play notification sound
+                                playNotificationSound();
+
+                                // Reload page after delay
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 2000);
                             } else {
                                 Swal.fire({
                                     icon: 'warning',
@@ -342,6 +463,109 @@
                 });
             }
 
+            // Play notification sound
+            function playNotificationSound() {
+                const audio = new Audio(
+                    'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+                );
+                audio.play();
+            }
+
+            // Function to convert queue number to Indonesian pronunciation
+            function convertQueueNumberToIndonesian(queueNumber) {
+                // Indonesian number words
+                const indonesianNumbers = {
+                    '0': 'Nol',
+                    '1': 'Satu',
+                    '2': 'Dua',
+                    '3': 'Tiga',
+                    '4': 'Empat',
+                    '5': 'Lima',
+                    '6': 'Enam',
+                    '7': 'Tujuh',
+                    '8': 'Delapan',
+                    '9': 'Sembilan',
+                    '10': 'Sepuluh',
+                    '11': 'Sebelas',
+                    '12': 'Dua Belas',
+                    '13': 'Tiga Belas',
+                    '14': 'Empat Belas',
+                    '15': 'Lima Belas',
+                    '16': 'Enam Belas',
+                    '17': 'Tujuh Belas',
+                    '18': 'Delapan Belas',
+                    '19': 'Sembilan Belas',
+                    '20': 'Dua Puluh',
+                    '30': 'Tiga Puluh',
+                    '40': 'Empat Puluh',
+                    '50': 'Lima Puluh',
+                    '60': 'Enam Puluh',
+                    '70': 'Tujuh Puluh',
+                    '80': 'Delapan Puluh',
+                    '90': 'Sembilan Puluh',
+                    '100': 'Seratus'
+                };
+
+                // If it's a pure number, convert it
+                if (!isNaN(queueNumber)) {
+                    const number = parseInt(queueNumber);
+                    if (indonesianNumbers[number]) {
+                        return indonesianNumbers[number];
+                    } else {
+                        // For numbers > 100, build the pronunciation
+                        if (number < 100) {
+                            const tens = Math.floor(number / 10) * 10;
+                            const ones = number % 10;
+                            if (ones === 0) {
+                                return indonesianNumbers[tens];
+                            } else {
+                                return indonesianNumbers[tens] + ' ' + indonesianNumbers[ones];
+                            }
+                        } else {
+                            return queueNumber; // Fallback for large numbers
+                        }
+                    }
+                }
+
+                // For alphanumeric (like "U5", "A10"), convert the numeric part
+                let letters = '';
+                let numbers = '';
+
+                // Split into letters and numbers
+                for (let i = 0; i < queueNumber.length; i++) {
+                    const char = queueNumber[i];
+                    if (!isNaN(char)) {
+                        numbers += char;
+                    } else {
+                        letters += char;
+                    }
+                }
+
+                // If we have both letters and numbers
+                if (letters && numbers) {
+                    const numberValue = parseInt(numbers);
+                    if (indonesianNumbers[numberValue]) {
+                        return letters + ' ' + indonesianNumbers[numberValue];
+                    } else {
+                        // For numbers > 100, build the pronunciation
+                        if (numberValue < 100) {
+                            const tens = Math.floor(numberValue / 10) * 10;
+                            const ones = numberValue % 10;
+                            if (ones === 0) {
+                                return letters + ' ' + indonesianNumbers[tens];
+                            } else {
+                                return letters + ' ' + indonesianNumbers[tens] + ' ' + indonesianNumbers[ones];
+                            }
+                        } else {
+                            return queueNumber; // Fallback for large numbers
+                        }
+                    }
+                }
+
+                // If no conversion needed, return as is
+                return queueNumber;
+            }
+
             // Function to play TTS locally (fallback)
             function playTTSLocally(poliName, queueNumber) {
                 // Create audio sequence manually
@@ -353,7 +577,9 @@
 
                 // After attention sound, use browser TTS for poli and number
                 setTimeout(() => {
-                    const text = `Nomor antrian ${queueNumber}, silakan menuju ke ${poliName}`;
+                    // Convert queue number to Indonesian pronunciation
+                    const indonesianQueueNumber = convertQueueNumberToIndonesian(queueNumber);
+                    const text = `Nomor antrian ${indonesianQueueNumber}, silakan menuju ke ${poliName}`;
                     if ('speechSynthesis' in window) {
                         const utterance = new SpeechSynthesisUtterance(text);
                         utterance.lang = 'id-ID';
@@ -480,6 +706,22 @@
                         form.submit();
                     }
                 });
+            }
+
+            function toggleDetails(antrianId) {
+                const details = document.getElementById(`details-${antrianId}`);
+                const buttonText = document.getElementById(`btn-text-${antrianId}`);
+                const icon = document.getElementById(`icon-${antrianId}`);
+
+                if (details.classList.contains('hidden')) {
+                    details.classList.remove('hidden');
+                    buttonText.textContent = 'Kurangi';
+                    icon.classList.remove('transform', 'rotate-180');
+                } else {
+                    details.classList.add('hidden');
+                    buttonText.textContent = 'Selengkapnya';
+                    icon.classList.add('transform', 'rotate-180');
+                }
             }
         </script>
     @endpush

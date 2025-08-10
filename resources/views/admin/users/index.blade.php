@@ -155,16 +155,20 @@
 
                     <!-- Search Box -->
                     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
-                        <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-col md:flex-row gap-4">
+                        <form method="GET" action="{{ route('admin.users.index') }}"
+                            class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1">
-                                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari User</label>
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari
+                                    User</label>
                                 <div class="relative">
                                     <input type="text" id="search" name="search" value="{{ request('search') }}"
                                         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                         placeholder="Cari berdasarkan nama, KTP, HP, alamat, pekerjaan, atau jenis kelamin...">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                         </svg>
                                     </div>
                                 </div>
@@ -173,7 +177,8 @@
                                 <button type="submit"
                                     class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition duration-200 flex items-center">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                     Cari
                                 </button>
@@ -187,10 +192,20 @@
 
                     <!-- Users Table -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden animate-slide-up">
-                        <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="text-lg font-semibold text-gray-900">Daftar User</h3>
+                            <a href="{{ route('admin.users.create') }}"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Tambah User
+                            </a>
                         </div>
-                        <div class="overflow-x-auto">
+
+                        <!-- Desktop Table -->
+                        <div class="hidden lg:block overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 table-fixed">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -265,6 +280,85 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Mobile Table -->
+                        <div class="lg:hidden">
+                            @forelse($users as $user)
+                                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                                    <!-- 4 Kolom Penting untuk Mobile -->
+                                    <div class="grid grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</p>
+                                            <p class="text-sm font-medium text-gray-900">{{ $user->nama }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">No. KTP
+                                            </p>
+                                            <p class="text-sm text-gray-900">{{ $user->no_ktp }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">No. HP
+                                            </p>
+                                            <p class="text-sm text-gray-900">{{ $user->no_hp }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis
+                                                Kelamin</p>
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $user->jenis_kelamin == 'laki-laki' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
+                                                {{ $user->jenis_kelamin == 'laki-laki' ? 'Laki-laki' : 'Perempuan' }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Selengkapnya untuk Mobile -->
+                                    <div class="border-t border-gray-100 pt-3">
+                                        <button onclick="toggleUserDetails({{ $user->id }})"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                                            <span id="user-btn-text-{{ $user->id }}">Selengkapnya</span>
+                                            <svg id="user-icon-{{ $user->id }}"
+                                                class="w-4 h-4 ml-1 transform transition-transform" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+
+                                        <!-- Detail Tambahan (Hidden by default) -->
+                                        <div id="user-details-{{ $user->id }}" class="hidden mt-3 space-y-2">
+                                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Alamat:</span>
+                                                    <span class="text-gray-600">{{ $user->alamat }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Pekerjaan:</span>
+                                                    <span class="text-gray-600">{{ $user->pekerjaan }}</span>
+                                                </div>
+                                                <div class="flex space-x-2 pt-2">
+                                                    <button onclick="viewUser({{ $user->id }})"
+                                                        class="text-blue-600 hover:text-blue-900 text-sm font-medium">Detail</button>
+                                                    <button onclick="resetPassword({{ $user->id }})"
+                                                        class="text-green-600 hover:text-green-900 text-sm font-medium">Reset
+                                                        Password</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-8 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-lg font-medium">Belum ada user</p>
+                                    <p class="text-sm text-gray-400">Tidak ada data user yang tersedia</p>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -529,6 +623,23 @@
                             timerProgressBar: true
                         });
                     @endif
+
+                    // Function to toggle user details on mobile
+                    function toggleUserDetails(userId) {
+                        const detailsDiv = document.getElementById(`user-details-${userId}`);
+                        const buttonText = document.getElementById(`user-btn-text-${userId}`);
+                        const icon = document.getElementById(`user-icon-${userId}`);
+
+                        if (detailsDiv.classList.contains('hidden')) {
+                            detailsDiv.classList.remove('hidden');
+                            buttonText.textContent = 'Lebih Sedikit';
+                            icon.classList.remove('transform', 'rotate-180');
+                        } else {
+                            detailsDiv.classList.add('hidden');
+                            buttonText.textContent = 'Selengkapnya';
+                            icon.classList.add('transform', 'rotate-180');
+                        }
+                    }
                 </script>
             @endpush
         @endsection

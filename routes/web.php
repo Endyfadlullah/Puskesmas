@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TTSController;
+use App\Http\Controllers\IndonesianTTSController;
 
 // Landing Page
 Route::get('/', [LandingController::class, 'index'])->name('landing');
@@ -67,6 +68,8 @@ Route::middleware('auth:admin')->group(function () {
 
     // User Management Routes
     Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users.index');
+    Route::get('/admin/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+    Route::post('/admin/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
     Route::get('/admin/users/{user}', [AdminController::class, 'showUser'])->name('admin.users.show');
     Route::put('/admin/users/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::post('/admin/users/{user}/reset-password', [AdminController::class, 'resetUserPassword'])->name('admin.users.reset-password');
@@ -83,8 +86,21 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/tts/generate', [TTSController::class, 'generateQueueCall'])->name('admin.tts.generate');
     Route::post('/admin/tts/audio-sequence', [TTSController::class, 'getAudioSequence'])->name('admin.tts.audio-sequence');
     Route::post('/admin/tts/play-sequence', [TTSController::class, 'playAudioSequence'])->name('admin.tts.play-sequence');
+
+    // Indonesian TTS Routes
+    Route::post('/admin/indonesian-tts/generate', [IndonesianTTSController::class, 'generateQueueCall'])->name('admin.indonesian-tts.generate');
+    Route::post('/admin/indonesian-tts/audio-sequence', [IndonesianTTSController::class, 'createAudioSequence'])->name('admin.indonesian-tts.audio-sequence');
+    Route::get('/admin/indonesian-tts/status', [IndonesianTTSController::class, 'checkStatus'])->name('admin.indonesian-tts.status');
+    Route::post('/admin/indonesian-tts/test', [IndonesianTTSController::class, 'testTTS'])->name('admin.indonesian-tts.test');
+    Route::get('/admin/indonesian-tts/install', [IndonesianTTSController::class, 'getInstallationInstructions'])->name('admin.indonesian-tts.install');
+    Route::get('/admin/indonesian-tts/download', [IndonesianTTSController::class, 'downloadModelFiles'])->name('admin.indonesian-tts.download');
+    Route::get('/admin/indonesian-tts', [IndonesianTTSController::class, 'index'])->name('admin.indonesian-tts.index');
 });
 
 // Public TTS Routes (for display)
 Route::post('/tts/play-sequence', [TTSController::class, 'playAudioSequence'])->name('tts.play-sequence');
+
+// API Routes for display
+Route::get('/api/check-new-calls', [DisplayController::class, 'checkNewCalls'])->name('api.check-new-calls');
+Route::get('/api/display-data', [DisplayController::class, 'getDisplayData'])->name('api.display-data');
 

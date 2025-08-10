@@ -46,4 +46,22 @@ class Antrian extends Model
     {
         return $this->hasMany(RiwayatPanggilan::class);
     }
+
+    public function getWaktuPanggilAttribute($value)
+    {
+        // If waktu_panggil is not set but we have call history, get it from there
+        if (!$value && $this->status === 'dipanggil') {
+            $latestCall = $this->riwayatPanggilan()->latest('waktu_panggilan')->first();
+            if ($latestCall) {
+                return $latestCall->waktu_panggilan;
+            }
+        }
+
+        // Ensure we return a Carbon instance for proper formatting
+        if ($value) {
+            return \Carbon\Carbon::parse($value);
+        }
+
+        return null;
+    }
 }
