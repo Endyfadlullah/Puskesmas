@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Antrian;
@@ -19,6 +20,9 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $totalUsers = User::count();
         $totalAntrian = Antrian::count();
         $antrianHariIni = Antrian::whereDate('created_at', today())->count();
@@ -62,6 +66,9 @@ class AdminController extends Controller
 
     public function manageUsers(Request $request)
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $query = User::with(['antrians.poli']);
 
         // Search functionality
@@ -184,6 +191,9 @@ class AdminController extends Controller
 
     public function laporan(Request $request)
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $query = Antrian::with(['user', 'poli']);
 
         // Filter berdasarkan tanggal
@@ -219,9 +229,10 @@ class AdminController extends Controller
         $totalAntrian = $antrian->count();
         $antrianSelesai = $antrian->where('status', 'selesai')->count();
         $antrianMenunggu = $antrian->where('status', 'menunggu')->count();
+        $antrianDipanggil = $antrian->where('status', 'dipanggil')->count();
         $antrianSedang = $antrian->where('status', 'sedang')->count();
 
-        return view('admin.laporan.index', compact('antrian', 'polis', 'totalAntrian', 'antrianSelesai', 'antrianMenunggu', 'antrianSedang'));
+        return view('admin.laporan.index', compact('antrian', 'polis', 'totalAntrian', 'antrianSelesai', 'antrianMenunggu', 'antrianDipanggil', 'antrianSedang'));
     }
 
     public function exportPDF(Request $request)
@@ -256,7 +267,14 @@ class AdminController extends Controller
 
         $antrian = $query->orderBy('created_at', 'desc')->get();
 
-        $pdf = Pdf::loadView('admin.laporan.pdf', compact('antrian'));
+        // Statistik untuk PDF
+        $totalAntrian = $antrian->count();
+        $antrianSelesai = $antrian->where('status', 'selesai')->count();
+        $antrianMenunggu = $antrian->where('status', 'menunggu')->count();
+        $antrianDipanggil = $antrian->where('status', 'dipanggil')->count();
+        $antrianSedang = $antrian->where('status', 'sedang')->count();
+
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact('antrian', 'totalAntrian', 'antrianSelesai', 'antrianMenunggu', 'antrianDipanggil', 'antrianSedang'));
         return $pdf->download('laporan-antrian-' . date('Y-m-d') . '.pdf');
     }
 
@@ -291,6 +309,13 @@ class AdminController extends Controller
         }
 
         $antrian = $query->orderBy('created_at', 'desc')->get();
+
+        // Statistik untuk Excel
+        $totalAntrian = $antrian->count();
+        $antrianSelesai = $antrian->where('status', 'selesai')->count();
+        $antrianMenunggu = $antrian->where('status', 'menunggu')->count();
+        $antrianDipanggil = $antrian->where('status', 'dipanggil')->count();
+        $antrianSedang = $antrian->where('status', 'sedang')->count();
 
         $filename = 'laporan-antrian-' . date('Y-m-d') . '.csv';
 
@@ -338,6 +363,9 @@ class AdminController extends Controller
 
     public function poliUmum()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $antrians = Antrian::with(['user', 'poli'])
             ->whereHas('poli', function ($query) {
                 $query->where('nama_poli', 'umum');
@@ -351,6 +379,9 @@ class AdminController extends Controller
 
     public function poliGigi()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $antrians = Antrian::with(['user', 'poli'])
             ->whereHas('poli', function ($query) {
                 $query->where('nama_poli', 'gigi');
@@ -364,6 +395,9 @@ class AdminController extends Controller
 
     public function poliJiwa()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $antrians = Antrian::with(['user', 'poli'])
             ->whereHas('poli', function ($query) {
                 $query->where('nama_poli', 'kesehatan jiwa');
@@ -377,6 +411,9 @@ class AdminController extends Controller
 
     public function poliTradisional()
     {
+        // Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+        $this->autoBatalkanAntrianLama();
+
         $antrians = Antrian::with(['user', 'poli'])
             ->whereHas('poli', function ($query) {
                 $query->where('nama_poli', 'kesehatan tradisional');
@@ -639,6 +676,38 @@ class AdminController extends Controller
         ];
 
         return $prefixMap[strtolower($namaPoli)] ?? 'A';
+    }
+
+    /**
+     * Auto-batalkan antrian yang sudah dipanggil lebih dari 5 menit
+     * tanpa dikonfirmasi selesai oleh admin
+     */
+    private function autoBatalkanAntrianLama()
+    {
+        try {
+            // Cari antrian yang sudah dipanggil lebih dari 5 menit
+            $antrianLama = Antrian::where('status', 'dipanggil')
+                ->where('waktu_panggil', '<=', now()->subMinutes(5))
+                ->get();
+
+            $count = 0;
+            foreach ($antrianLama as $antrian) {
+                // Update status menjadi 'batal'
+                $antrian->update(['status' => 'batal']);
+                $count++;
+
+                // Log untuk tracking
+                \Log::info("Antrian {$antrian->no_antrian} otomatis dibatalkan karena lewat 5 menit sejak dipanggil");
+            }
+
+            // Jika ada antrian yang dibatalkan, log jumlahnya
+            if ($count > 0) {
+                \Log::info("Total {$count} antrian otomatis dibatalkan karena timeout");
+            }
+        } catch (\Exception $e) {
+            // Log error jika terjadi masalah
+            \Log::error("Error saat auto-batalkan antrian: " . $e->getMessage());
+        }
     }
 
     public function cetakAntrian(Antrian $antrian)

@@ -132,10 +132,11 @@
 
     <div class="summary">
         <h3>Ringkasan Statistik:</h3>
-        <p><strong>Total Antrian:</strong> {{ $antrian->count() }}</p>
-        <p><strong>Menunggu:</strong> {{ $antrian->where('status', 'menunggu')->count() }}</p>
-        <p><strong>Sedang:</strong> {{ $antrian->where('status', 'sedang')->count() }}</p>
-        <p><strong>Selesai:</strong> {{ $antrian->where('status', 'selesai')->count() }}</p>
+        <p><strong>Total Antrian:</strong> {{ $totalAntrian }}</p>
+        <p><strong>Menunggu:</strong> {{ $antrianMenunggu }}</p>
+        <p><strong>Dipanggil:</strong> {{ $antrianDipanggil }}</p>
+        <p><strong>Sedang:</strong> {{ $antrianSedang }}</p>
+        <p><strong>Selesai:</strong> {{ $antrianSelesai }}</p>
         <p><strong>Batal:</strong> {{ $antrian->where('status', 'batal')->count() }}</p>
     </div>
 </body>

@@ -20,7 +20,7 @@
                         </div>
                     </div>
                     <div class="hidden md:flex items-center space-x-4">
-                        
+
                         <span class="text-gray-700">Selamat datang, Admin</span>
                         <button onclick="confirmLogout()"
                             class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
@@ -219,6 +219,9 @@
                                     <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>
                                         Menunggu
                                     </option>
+                                    <option value="dipanggil" {{ request('status') == 'dipanggil' ? 'selected' : '' }}>
+                                        Dipanggil
+                                    </option>
                                     <option value="sedang" {{ request('status') == 'sedang' ? 'selected' : '' }}>Sedang
                                     </option>
                                     <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai
@@ -263,7 +266,7 @@
                     </div>
 
                     <!-- Statistics Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                         <div class="bg-white rounded-2xl shadow-xl border p-6">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -297,6 +300,25 @@
                                 <div class="ml-4">
                                     <p class="text-sm font-medium text-gray-600">Menunggu</p>
                                     <p class="text-2xl font-bold text-gray-900">{{ $antrianMenunggu }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-xl border p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Dipanggil</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $antrianDipanggil }}</p>
                                 </div>
                             </div>
                         </div>
@@ -400,6 +422,11 @@
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                         Menunggu
                                                     </span>
+                                                @elseif($item->status == 'dipanggil')
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Dipanggil
+                                                    </span>
                                                 @elseif($item->status == 'sedang')
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -410,7 +437,7 @@
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         Selesai
                                                     </span>
-                                                @else
+                                                @elseif($item->status == 'batal')
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                         Batal
@@ -472,6 +499,11 @@
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                     Menunggu
                                                 </span>
+                                            @elseif($item->status == 'dipanggil')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    Dipanggil
+                                                </span>
                                             @elseif($item->status == 'sedang')
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -482,7 +514,7 @@
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     Selesai
                                                 </span>
-                                            @else
+                                            @elseif($item->status == 'batal')
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                     Batal
