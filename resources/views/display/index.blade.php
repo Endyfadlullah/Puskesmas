@@ -184,183 +184,9 @@
 
     @push('scripts')
         <script>
-            // TTS Audio Player
-            class TTSAudioPlayer {
-                constructor() {
-                    this.audioQueue = [];
-                    this.isPlaying = false;
-                    this.currentAudio = null;
-                }
 
-                // Play complete audio sequence
-                async playAudioSequence(audioSequence) {
-                    if (this.isPlaying) {
-                        console.log('Audio already playing, queueing...');
-                        this.audioQueue.push(audioSequence);
-                        return;
-                    }
 
-                    this.isPlaying = true;
 
-                    for (let i = 0; i < audioSequence.length; i++) {
-                        const audioItem = audioSequence[i];
-                        await this.playAudioItem(audioItem);
-
-                        // Wait between audio items (1 second gap)
-                        if (i < audioSequence.length - 1) {
-                            await this.delay(1000);
-                        }
-                    }
-
-                    this.isPlaying = false;
-
-                    // Play next in queue if available
-                    if (this.audioQueue.length > 0) {
-                        const nextSequence = this.audioQueue.shift();
-                        this.playAudioSequence(nextSequence);
-                    }
-                }
-
-                // Play single audio item
-                playAudioItem(audioItem) {
-                    return new Promise((resolve, reject) => {
-                        if (audioItem.type === 'browser_tts') {
-                            // Use browser TTS
-                            if ('speechSynthesis' in window) {
-                                const utterance = new SpeechSynthesisUtterance(audioItem.text);
-                                utterance.lang = 'id-ID';
-                                utterance.rate = 0.85; // Slightly faster for more natural flow
-                                utterance.volume = 1.0;
-
-                                // Try to select a female Indonesian voice if available
-                                const voices = speechSynthesis.getVoices();
-                                const indonesianVoice = voices.find(voice =>
-                                    voice.lang === 'id-ID' &&
-                                    voice.name.toLowerCase().includes('female')
-                                ) || voices.find(voice => voice.lang === 'id-ID');
-
-                                if (indonesianVoice) {
-                                    utterance.voice = indonesianVoice;
-                                }
-
-                                utterance.addEventListener('end', () => {
-                                    resolve();
-                                });
-
-                                utterance.addEventListener('error', (error) => {
-                                    console.error('TTS error:', error);
-                                    resolve();
-                                });
-
-                                speechSynthesis.speak(utterance);
-
-                                // Fallback timeout
-                                setTimeout(() => {
-                                    resolve();
-                                }, audioItem.duration || 8000);
-                            } else {
-                                console.warn('Speech synthesis not supported');
-                                resolve();
-                            }
-                        } else if (audioItem.type === 'audio_file') {
-                            // Play audio file from our TTS system
-                            const audio = new Audio(audioItem.url);
-
-                            audio.addEventListener('loadeddata', () => {
-                                console.log('Audio loaded, playing...');
-                                audio.play().catch(error => {
-                                    console.error('Audio play error:', error);
-                                    resolve();
-                                });
-                            });
-
-                            audio.addEventListener('ended', () => {
-                                console.log('Audio ended');
-                                resolve();
-                            });
-
-                            audio.addEventListener('error', (error) => {
-                                console.error('Audio playback error:', error);
-                                // Fallback to browser TTS if audio file fails
-                                this.fallbackToBrowserTTS(audioItem.text, resolve);
-                            });
-
-                            // Fallback timeout
-                            setTimeout(() => {
-                                resolve();
-                            }, audioItem.duration || 8000);
-                        } else {
-                            console.warn('Unknown audio type:', audioItem.type);
-                            resolve();
-                        }
-                    });
-                }
-
-                // Fallback to browser TTS if audio file fails
-                fallbackToBrowserTTS(text, resolve) {
-                    if ('speechSynthesis' in window) {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.lang = 'id-ID';
-                        utterance.rate = 0.85;
-                        utterance.volume = 1.0;
-
-                        utterance.addEventListener('end', () => {
-                            resolve();
-                        });
-
-                        utterance.addEventListener('error', (error) => {
-                            console.error('Fallback TTS error:', error);
-                            resolve();
-                        });
-
-                        speechSynthesis.speak(utterance);
-                    } else {
-                        resolve();
-                    }
-                }
-
-                // Utility function for delays
-                delay(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-
-                // Play TTS for queue call
-                async playQueueCall(poliName, queueNumber) {
-                    try {
-                        console.log('Playing TTS for:', poliName, queueNumber);
-                        
-                        const response = await fetch('{{ route('tts.play-sequence') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                poli_name: poliName,
-                                queue_number: queueNumber
-                            })
-                        });
-
-                        const data = await response.json();
-
-                        if (data.success && data.audio_sequence) {
-                            console.log('Audio sequence received:', data.audio_sequence);
-                            await this.playAudioSequence(data.audio_sequence);
-                        } else {
-                            console.error('Failed to get audio sequence:', data.message);
-                            // Fallback to browser TTS
-                            this.fallbackToBrowserTTS(`Nomor antrian ${queueNumber} untuk ${poliName}. Silakan menuju ke loket yang tersedia.`, () => {});
-                        }
-                    } catch (error) {
-                        console.error('Error playing TTS:', error);
-                        // Fallback to browser TTS
-                        this.fallbackToBrowserTTS(`Nomor antrian ${queueNumber} untuk ${poliName}. Silakan menuju ke loket yang tersedia.`, () => {});
-                    }
-                }
-            }
-
-            // Initialize TTS Audio Player
-            const ttsPlayer = new TTSAudioPlayer();
 
             // Show SweetAlert2 for success messages
             @if (session('success'))
@@ -466,8 +292,7 @@
                         if (data.has_new_call && data.antrian) {
                             console.log('New call detected:', data.antrian);
 
-                            // Play TTS for the called queue
-                            ttsPlayer.playQueueCall(data.antrian.poli_name, data.antrian.queue_number);
+
 
                             // Show notification
                             showNewCallNotification(data.antrian.poli_name, data.antrian.queue_number);
@@ -547,16 +372,7 @@
             // Update display data every 10 seconds
             setInterval(updateDisplayData, 10000);
 
-            // Fallback: Listen for TTS events from admin panel (if broadcast not available)
-            window.addEventListener('message', function(event) {
-                if (event.data.type === 'TTS_CALL') {
-                    const {
-                        poliName,
-                        queueNumber
-                    } = event.data;
-                    ttsPlayer.playQueueCall(poliName, queueNumber);
-                }
-            });
+
         </script>
     @endpush
 @endsection
