@@ -12,6 +12,7 @@ use App\Models\Admin;
 use App\Models\Antrian;
 use App\Models\Poli;
 use App\Models\RiwayatPanggilan;
+use App\Services\AudioService;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -717,6 +718,98 @@ class AdminController extends Controller
 
             $pdf = Pdf::loadView('admin.antrian.print', compact('antrian'));
             return $pdf->stream('antrian-' . $antrian->no_antrian . '.pdf');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Play audio for queue call
+     */
+    public function playQueueCallAudio(Request $request)
+    {
+        try {
+            $request->validate([
+                'poli_name' => 'required|string'
+            ]);
+
+            $poliName = $request->input('poli_name');
+            
+            // Get audio sequence from AudioService
+            $audioService = app(AudioService::class);
+            $result = $audioService->getQueueCallAudio($poliName);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error playing audio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Panggil antrian selanjutnya berdasarkan poli
+     */
+    public function panggilSelanjutnya(Request $request)
+    {
+        try {
+            $request->validate([
+                'poli_name' => 'required|string'
+            ]);
+
+            $poliName = $request->input('poli_name');
+
+            // Cari antrian berikutnya yang status 'menunggu'
+            $antrianSelanjutnya = Antrian::whereHas('poli', function($query) use ($poliName) {
+                    $query->where('nama_poli', $poliName);
+                })
+                ->where('status', 'menunggu')
+                ->whereDate('created_at', today())
+                ->orderBy('created_at', 'asc')
+                ->first();
+
+            if (!$antrianSelanjutnya) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada antrian yang menunggu untuk ' . $poliName
+                ]);
+            }
+
+            // Update status menjadi 'dipanggil'
+            $antrianSelanjutnya->update([
+                'status' => 'dipanggil',
+                'waktu_panggil' => now()
+            ]);
+
+            // Catat di riwayat panggilan
+            \App\Models\RiwayatPanggilan::create([
+                'antrian_id' => $antrianSelanjutnya->id,
+                'waktu_panggilan' => now(),
+                'admin_id' => auth()->id()
+            ]);
+
+            // Get audio sequence
+            $audioService = app(AudioService::class);
+            $audioResult = $audioService->getQueueCallAudio($poliName);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian ' . $antrianSelanjutnya->no_antrian . ' berhasil dipanggil',
+                'antrian' => [
+                    'id' => $antrianSelanjutnya->id,
+                    'no_antrian' => $antrianSelanjutnya->no_antrian,
+                    'poli_name' => $poliName,
+                    'user_name' => $antrianSelanjutnya->user->nama,
+                    'status' => 'dipanggil'
+                ],
+                'audio_sequence' => $audioResult['audio_sequence']
+            ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

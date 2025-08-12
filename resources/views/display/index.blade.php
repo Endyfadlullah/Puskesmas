@@ -184,6 +184,121 @@
 
     @push('scripts')
         <script>
+            // Audio Player for Queue Calls
+            class AudioPlayer {
+                constructor() {
+                    this.audioQueue = [];
+                    this.isPlaying = false;
+                }
+
+                // Play complete audio sequence
+                async playAudioSequence(audioSequence) {
+                    if (this.isPlaying) {
+                        console.log('Audio already playing, queueing...');
+                        this.audioQueue.push(audioSequence);
+                        return;
+                    }
+
+                    this.isPlaying = true;
+
+                    for (let i = 0; i < audioSequence.length; i++) {
+                        const audioItem = audioSequence[i];
+                        await this.playAudioItem(audioItem);
+
+                        // Wait between audio items (0.5 second gap)
+                        if (i < audioSequence.length - 1) {
+                            await this.delay(500);
+                        }
+                    }
+
+                    this.isPlaying = false;
+
+                    // Play next in queue if available
+                    if (this.audioQueue.length > 0) {
+                        const nextSequence = this.audioQueue.shift();
+                        this.playAudioSequence(nextSequence);
+                    }
+                }
+
+                // Play single audio item
+                playAudioItem(audioItem) {
+                    return new Promise((resolve) => {
+                        if (audioItem.type === 'audio_file') {
+                            const audio = new Audio(audioItem.url);
+                            
+                            audio.addEventListener('loadeddata', () => {
+                                console.log('Audio loaded, playing...');
+                                audio.play().catch(error => {
+                                    console.error('Audio play error:', error);
+                                    resolve();
+                                });
+                            });
+
+                            audio.addEventListener('ended', () => {
+                                console.log('Audio ended');
+                                resolve();
+                            });
+
+                            audio.addEventListener('error', (error) => {
+                                console.error('Audio playback error:', error);
+                                resolve();
+                            });
+
+                            // Fallback timeout
+                            setTimeout(() => {
+                                resolve();
+                            }, audioItem.duration || 5000);
+                        } else if (audioItem.type === 'delay') {
+                            // Handle delay between audio files
+                            console.log(`Waiting ${audioItem.duration}ms delay...`);
+                            setTimeout(() => {
+                                console.log('Delay finished');
+                                resolve();
+                            }, audioItem.duration);
+                        } else {
+                            console.warn('Unknown audio type:', audioItem.type);
+                            resolve();
+                        }
+                    });
+                }
+
+                // Utility function for delays
+                delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                // Play audio for queue call
+                async playQueueCall(poliName) {
+                    try {
+                        console.log('Playing audio for:', poliName);
+                        
+                        const response = await fetch('{{ route('audio.queue-call') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                poli_name: poliName
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success && data.audio_sequence) {
+                            console.log('Audio sequence received:', data.audio_sequence);
+                            await this.playAudioSequence(data.audio_sequence);
+                        } else {
+                            console.error('Failed to get audio sequence:', data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error playing audio:', error);
+                    }
+                }
+            }
+
+            // Initialize Audio Player
+            const audioPlayer = new AudioPlayer();
 
 
 
@@ -292,7 +407,8 @@
                         if (data.has_new_call && data.antrian) {
                             console.log('New call detected:', data.antrian);
 
-
+                            // Play audio for the called queue
+                            audioPlayer.playQueueCall(data.antrian.poli_name);
 
                             // Show notification
                             showNewCallNotification(data.antrian.poli_name, data.antrian.queue_number);

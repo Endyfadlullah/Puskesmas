@@ -10,54 +10,73 @@ class DisplayController extends Controller
 {
     public function index()
     {
+        // Get all available polis
+        $polis = Poli::all();
+        
         // Current: sedang dipanggil per poli
-        $poliUmumCurrent = Antrian::where('poli_id', 1)
+        $poliUmumCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'umum');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
-        $poliGigiCurrent = Antrian::where('poli_id', 2)
+        $poliGigiCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'gigi');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
-        $poliJiwaCurrent = Antrian::where('poli_id', 3)
+        $poliJiwaCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan jiwa');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
-        $poliTradisionalCurrent = Antrian::where('poli_id', 4)
+        $poliTradisionalCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan tradisional');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
         // Next: menunggu per poli (maks 3)
-        $poliUmumNext = Antrian::where('poli_id', 1)
+        $poliUmumNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'umum');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
             ->take(3)
             ->get();
 
-        $poliGigiNext = Antrian::where('poli_id', 2)
+        $poliGigiNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'gigi');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
             ->take(3)
             ->get();
 
-        $poliJiwaNext = Antrian::where('poli_id', 3)
+        $poliJiwaNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan jiwa');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
             ->take(3)
             ->get();
 
-        $poliTradisionalNext = Antrian::where('poli_id', 4)
+        $poliTradisionalNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan tradisional');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
@@ -107,19 +126,25 @@ class DisplayController extends Controller
     public function getDisplayData()
     {
         // Current: sedang dipanggil per poli
-        $poliUmumCurrent = Antrian::where('poli_id', 1)
+        $poliUmumCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'umum');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
-        $poliGigiCurrent = Antrian::where('poli_id', 2)
+        $poliGigiCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'gigi');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
             ->first();
 
-        $poliJiwaCurrent = Antrian::where('poli_id', 3)
+        $poliJiwaCurrent = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan jiwa');
+            })
             ->where('status', 'dipanggil')
             ->whereDate('created_at', today())
             ->orderByDesc('updated_at')
@@ -132,21 +157,26 @@ class DisplayController extends Controller
             ->first();
 
         // Next: menunggu per poli (maks 3)
-        $poliUmumNext = Antrian::where('poli_id', 1)
+        $poliUmumNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'umum');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
             ->take(3)
             ->get();
 
-        $poliGigiNext = Antrian::where('poli_id', 2)
+        $poliGigiNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'gigi');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
-            ->take(3)
             ->get();
 
-        $poliJiwaNext = Antrian::where('poli_id', 3)
+        $poliJiwaNext = Antrian::whereHas('poli', function($query) {
+                $query->where('nama_poli', 'kesehatan jiwa');
+            })
             ->where('status', 'menunggu')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')

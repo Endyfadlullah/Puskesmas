@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AudioController;
 
 
 // Landing Page
@@ -64,6 +65,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/selesai-antrian', [AdminController::class, 'selesaiAntrian'])->name('admin.selesai-antrian');
     Route::post('/admin/antrian/batal', [AdminController::class, 'batalAntrian'])->name('admin.batal-antrian');
     Route::post('/admin/panggil-antrian/{antrian}', [AdminController::class, 'panggilAntrianById'])->name('admin.panggil-antrian-id');
+    Route::post('/admin/play-audio', [AdminController::class, 'playQueueCallAudio'])->name('admin.play-audio');
+    Route::post('/admin/panggil-selanjutnya', [AdminController::class, 'panggilSelanjutnya'])->name('admin.panggil-selanjutnya');
+    Route::get('/admin/audio', [AudioController::class, 'index'])->name('admin.audio.index');
 
     // User Management Routes
     Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users.index');
@@ -88,6 +92,11 @@ Route::middleware('auth:admin')->group(function () {
 });
 
 
+
+// Audio Routes
+Route::post('/audio/queue-call', [AudioController::class, 'getQueueCallAudio'])->name('audio.queue-call');
+Route::get('/audio/files', [AudioController::class, 'getAvailableAudioFiles'])->name('audio.files');
+Route::post('/audio/test', [AudioController::class, 'testAudio'])->name('audio.test');
 
 // API Routes for display
 Route::get('/api/check-new-calls', [DisplayController::class, 'checkNewCalls'])->name('api.check-new-calls');
