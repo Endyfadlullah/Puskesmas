@@ -1,237 +1,267 @@
 #!/bin/bash
 
-# Indonesian TTS Installation Script
-# This script automates the installation of Indonesian TTS for Puskesmas system
+# 🎤 Indonesian TTS Installation Script untuk Puskesmas
+# Script ini akan menginstall semua dependencies yang diperlukan untuk Indonesian TTS
 
-set -e
-
-echo "🏥 Indonesian TTS Installation for Puskesmas System"
-echo "=================================================="
-echo ""
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+echo "🚀 Memulai instalasi Indonesian TTS System..."
+echo "================================================"
 
 # Check if running as root
-if [[ $EUID -eq 0 ]]; then
-   print_error "This script should not be run as root"
-   exit 1
-fi
-
-# Check if Python is installed
-print_status "Checking Python installation..."
-if ! command -v python3 &> /dev/null; then
-    print_error "Python 3 is not installed. Please install Python 3.8+ first."
+if [ "$EUID" -eq 0 ]; then
+    echo "❌ Jangan jalankan script ini sebagai root/sudo"
     exit 1
 fi
 
-PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
-print_success "Python $PYTHON_VERSION found"
-
-# Check if pip is installed
-print_status "Checking pip installation..."
-if ! command -v pip3 &> /dev/null; then
-    print_error "pip3 is not installed. Please install pip first."
-    exit 1
-fi
-
-print_success "pip3 found"
-
-# Install Coqui TTS
-print_status "Installing Coqui TTS..."
-if pip3 install TTS; then
-    print_success "Coqui TTS installed successfully"
+# Check Python version
+echo "🔍 Memeriksa Python..."
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+    echo "✅ Python3 ditemukan: $(python3 --version)"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+    echo "✅ Python ditemukan: $(python --version)"
 else
-    print_error "Failed to install Coqui TTS"
+    echo "❌ Python tidak ditemukan. Silakan install Python 3.7+ terlebih dahulu."
     exit 1
 fi
 
-# Verify TTS installation
-print_status "Verifying TTS installation..."
-if tts --version &> /dev/null; then
-    print_success "TTS command available"
-else
-    print_error "TTS command not found. Installation may have failed."
+# Check pip
+echo "🔍 Memeriksa pip..."
+if ! command -v pip3 &> /dev/null && ! command -v pip &> /dev/null; then
+    echo "❌ pip tidak ditemukan. Silakan install pip terlebih dahulu."
     exit 1
 fi
+
+# Install Python dependencies
+echo "📦 Installing Python dependencies..."
+echo "Installing pyttsx3..."
+$PYTHON_CMD -m pip install pyttsx3
+
+echo "Installing gTTS..."
+$PYTHON_CMD -m pip install gTTS
+
+echo "Installing Coqui TTS..."
+$PYTHON_CMD -m pip install TTS
 
 # Create necessary directories
-print_status "Creating directories..."
+echo "📁 Membuat direktori yang diperlukan..."
+mkdir -p storage/app/tts_scripts
 mkdir -p storage/app/tts/models
 mkdir -p storage/app/public/audio/queue_calls
 
-print_success "Directories created"
+# Set permissions
+echo "🔐 Setting permissions..."
+chmod -R 755 storage/app/tts_scripts
+chmod -R 755 storage/app/tts/models
+chmod -R 755 storage/app/public/audio
 
-# Download model files
-print_status "Downloading Indonesian TTS model files..."
+# Download Indonesian TTS models (if available)
+echo "📥 Downloading Indonesian TTS models..."
+MODEL_DIR="storage/app/tts/models"
 
-MODEL_URL="https://github.com/Wikidepia/indonesian-tts/releases/download/v1.2"
-CHECKPOINT_URL="$MODEL_URL/checkpoint.pth"
-CONFIG_URL="$MODEL_URL/config.json"
-
-# Download checkpoint.pth
-print_status "Downloading checkpoint.pth..."
-if curl -L -o storage/app/tts/models/checkpoint.pth "$CHECKPOINT_URL"; then
-    print_success "checkpoint.pth downloaded"
+# Check if models already exist
+if [ -f "$MODEL_DIR/checkpoint.pth" ] && [ -f "$MODEL_DIR/config.json" ]; then
+    echo "✅ Model files sudah ada"
 else
-    print_warning "Failed to download checkpoint.pth automatically"
-    print_status "Please download manually from: $CHECKPOINT_URL"
-    print_status "And save to: storage/app/tts/models/checkpoint.pth"
+    echo "⚠️  Model files belum ada. Silakan download manual dari:"
+    echo "   https://huggingface.co/coqui/Indonesian-TTS"
+    echo "   Atau gunakan script download terpisah"
 fi
 
-# Download config.json
-print_status "Downloading config.json..."
-if curl -L -o storage/app/tts/models/config.json "$CONFIG_URL"; then
-    print_success "config.json downloaded"
-else
-    print_warning "Failed to download config.json automatically"
-    print_status "Please download manually from: $CONFIG_URL"
-    print_status "And save to: storage/app/tts/models/config.json"
-fi
+# Create test script
+echo "🧪 Membuat test script..."
+cat > storage/app/tts_scripts/test_indonesian_tts.py << 'EOF'
+#!/usr/bin/env python3
+"""
+Test script untuk Indonesian TTS
+"""
 
-# Install g2p-id (optional)
-print_status "Installing g2p-id for better pronunciation..."
-if pip3 install g2p-id; then
-    print_success "g2p-id installed successfully"
-else
-    print_warning "Failed to install g2p-id. This is optional but recommended."
-fi
+import sys
+import os
 
-# Set proper permissions
-print_status "Setting file permissions..."
-chmod -R 755 storage/app/tts/
-chmod 644 storage/app/tts/models/* 2>/dev/null || true
+def test_pyttsx3():
+    try:
+        import pyttsx3
+        print("✅ pyttsx3: OK")
+        return True
+    except ImportError:
+        print("❌ pyttsx3: NOT FOUND")
+        return False
 
-print_success "Permissions set"
+def test_gtts():
+    try:
+        from gtts import gTTS
+        print("✅ gTTS: OK")
+        return True
+    except ImportError:
+        print("❌ gTTS: NOT FOUND")
+        return False
+
+def test_coqui_tts():
+    try:
+        import TTS
+        print("✅ Coqui TTS: OK")
+        return True
+    except ImportError:
+        print("❌ Coqui TTS: NOT FOUND")
+        return False
+
+def test_models():
+    model_dir = "storage/app/tts/models"
+    checkpoint = os.path.join(model_dir, "checkpoint.pth")
+    config = os.path.join(model_dir, "config.json")
+    
+    if os.path.exists(checkpoint) and os.path.exists(config):
+        print("✅ Model files: OK")
+        return True
+    else:
+        print("❌ Model files: NOT FOUND")
+        return False
+
+def main():
+    print("🔍 Testing Indonesian TTS Dependencies...")
+    print("=" * 40)
+    
+    pyttsx3_ok = test_pyttsx3()
+    gtts_ok = test_gtts()
+    coqui_ok = test_coqui_tts()
+    models_ok = test_models()
+    
+    print("=" * 40)
+    
+    if all([pyttsx3_ok, gtts_ok, coqui_ok, models_ok]):
+        print("🎉 Semua dependencies berhasil diinstall!")
+        print("🚀 Indonesian TTS siap digunakan!")
+    else:
+        print("⚠️  Beberapa dependencies belum terinstall dengan sempurna")
+        print("   Silakan jalankan script ini lagi atau install manual")
+
+if __name__ == "__main__":
+    main()
+EOF
+
+# Make test script executable
+chmod +x storage/app/tts_scripts/test_indonesian_tts.py
+
+# Create Indonesian TTS generator script
+echo "📝 Membuat Indonesian TTS generator script..."
+cat > storage/app/tts_scripts/indonesian_tts_generator.py << 'EOF'
+#!/usr/bin/env python3
+"""
+Indonesian TTS Generator menggunakan Coqui TTS
+"""
+
+import sys
+import os
+import json
+from pathlib import Path
+
+def generate_indonesian_tts(text, output_path, speaker="wibowo"):
+    """
+    Generate TTS audio menggunakan Indonesian TTS model
+    """
+    try:
+        from TTS.api import TTS
+        
+        # Initialize TTS
+        tts = TTS(model_path="storage/app/tts/models/checkpoint.pth",
+                  config_path="storage/app/tts/models/config.json")
+        
+        # Generate audio
+        tts.tts_to_file(text=text, file_path=output_path, speaker=speaker)
+        
+        return True
+        
+    except Exception as e:
+        print(f"Error generating Indonesian TTS: {e}")
+        return False
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python indonesian_tts_generator.py <text> <output_path> [speaker]")
+        sys.exit(1)
+    
+    text = sys.argv[1]
+    output_path = sys.argv[2]
+    speaker = sys.argv[3] if len(sys.argv) > 3 else "wibowo"
+    
+    print(f"Generating Indonesian TTS...")
+    print(f"Text: {text}")
+    print(f"Output: {output_path}")
+    print(f"Speaker: {speaker}")
+    
+    success = generate_indonesian_tts(text, output_path, speaker)
+    
+    if success:
+        print("✅ Indonesian TTS generated successfully!")
+    else:
+        print("❌ Failed to generate Indonesian TTS")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+EOF
+
+# Make generator script executable
+chmod +x storage/app/tts_scripts/indonesian_tts_generator.py
 
 # Test the installation
-print_status "Testing Indonesian TTS installation..."
+echo "🧪 Testing installation..."
+$PYTHON_CMD storage/app/tts_scripts/test_indonesian_tts.py
 
-TEST_TEXT="Halo dunia"
-TEST_OUTPUT="test_indonesian_tts.wav"
+# Create README for Indonesian TTS
+echo "📖 Membuat README Indonesian TTS..."
+cat > README_INDONESIAN_TTS.md << 'EOF'
+# 🎤 Indonesian TTS System untuk Puskesmas
 
-if tts --text "$TEST_TEXT" \
-    --model_path storage/app/tts/models/checkpoint.pth \
-    --config_path storage/app/tts/models/config.json \
-    --speaker_idx wibowo \
-    --out_path "$TEST_OUTPUT" 2>/dev/null; then
-    
-    print_success "Indonesian TTS test successful!"
-    
-    # Check if audio file was created
-    if [ -f "$TEST_OUTPUT" ]; then
-        FILE_SIZE=$(du -h "$TEST_OUTPUT" | cut -f1)
-        print_success "Test audio file created: $TEST_OUTPUT ($FILE_SIZE)"
-        
-        # Clean up test file
-        rm "$TEST_OUTPUT"
-        print_status "Test file cleaned up"
-    fi
-else
-    print_warning "Indonesian TTS test failed. Please check the installation manually."
-fi
+## 📋 Overview
+Sistem Indonesian TTS menggunakan model Coqui TTS yang dioptimalkan untuk bahasa Indonesia.
 
-# Create symbolic link for public access
-print_status "Creating symbolic link for public access..."
-if [ ! -L "public/storage" ]; then
-    php artisan storage:link
-    print_success "Storage link created"
-else
-    print_status "Storage link already exists"
-fi
+## 🚀 Fitur
+- Model TTS khusus bahasa Indonesia
+- Pengucapan natural dan akurat
+- Support multiple speakers
+- Offline processing
+- High quality audio output
 
-# Update .env file
-print_status "Updating environment configuration..."
+## 📁 File Structure
+```
+storage/app/tts/
+├── models/
+│   ├── checkpoint.pth    # Model checkpoint
+│   └── config.json       # Model configuration
+└── scripts/
+    ├── test_indonesian_tts.py
+    └── indonesian_tts_generator.py
+```
 
-# Check if .env exists
-if [ -f ".env" ]; then
-    # Add Indonesian TTS configuration if not exists
-    if ! grep -q "INDONESIAN_TTS_ENABLED" .env; then
-        echo "" >> .env
-        echo "# Indonesian TTS Configuration" >> .env
-        echo "INDONESIAN_TTS_ENABLED=true" >> .env
-        echo "INDONESIAN_TTS_MODEL_PATH=storage/app/tts/models/checkpoint.pth" >> .env
-        echo "INDONESIAN_TTS_CONFIG_PATH=storage/app/tts/models/config.json" >> .env
-        echo "INDONESIAN_TTS_DEFAULT_SPEAKER=wibowo" >> .env
-        print_success "Environment variables added to .env"
-    else
-        print_status "Indonesian TTS environment variables already exist"
-    fi
-else
-    print_warning ".env file not found. Please add Indonesian TTS configuration manually."
-fi
+## 🔧 Usage
+```bash
+# Test dependencies
+python storage/app/tts_scripts/test_indonesian_tts.py
 
-# Final status check
-print_status "Performing final status check..."
+# Generate TTS
+python storage/app/tts_scripts/indonesian_tts_generator.py "Nomor antrian 001" output.wav
+```
+
+## 📥 Model Download
+Download model files dari: https://huggingface.co/coqui/Indonesian-TTS
+
+## 🆘 Troubleshooting
+- Pastikan Python 3.7+ terinstall
+- Pastikan semua dependencies terinstall
+- Pastikan model files ada di direktori yang benar
+EOF
 
 echo ""
-echo "📋 Installation Summary:"
-echo "========================"
-
-# Check Python
-if command -v python3 &> /dev/null; then
-    echo -e "✅ Python: $(python3 --version)"
-else
-    echo -e "❌ Python: Not found"
-fi
-
-# Check TTS
-if command -v tts &> /dev/null; then
-    echo -e "✅ Coqui TTS: $(tts --version 2>/dev/null | head -n1 || echo 'Installed')"
-else
-    echo -e "❌ Coqui TTS: Not found"
-fi
-
-# Check model files
-if [ -f "storage/app/tts/models/checkpoint.pth" ]; then
-    echo -e "✅ Model file: checkpoint.pth"
-else
-    echo -e "❌ Model file: checkpoint.pth (missing)"
-fi
-
-if [ -f "storage/app/tts/models/config.json" ]; then
-    echo -e "✅ Config file: config.json"
-else
-    echo -e "❌ Config file: config.json (missing)"
-fi
-
-# Check g2p-id
-if command -v g2p-id &> /dev/null; then
-    echo -e "✅ g2p-id: Installed"
-else
-    echo -e "⚠️  g2p-id: Not installed (optional)"
-fi
-
+echo "🎉 Instalasi Indonesian TTS selesai!"
+echo "================================================"
 echo ""
-echo "🎉 Installation completed!"
+echo "📋 Langkah selanjutnya:"
+echo "1. Download model files dari Hugging Face"
+echo "2. Test sistem dengan: python storage/app/tts_scripts/test_indonesian_tts.py"
+echo "3. Akses Indonesian TTS di admin panel: /admin/indonesian-tts"
 echo ""
-echo "📖 Next steps:"
-echo "1. Access Indonesian TTS settings at: /admin/indonesian-tts"
-echo "2. Test the TTS functionality"
-echo "3. Configure speakers and preferences"
+echo "📖 Dokumentasi lengkap ada di: README_INDONESIAN_TTS.md"
 echo ""
-echo "📚 Documentation: README_INDONESIAN_TTS.md"
-echo "🐛 Troubleshooting: Check the documentation for common issues"
-echo ""
-echo "Happy coding! 🚀"
+echo "🚀 Selamat menggunakan Indonesian TTS System!"

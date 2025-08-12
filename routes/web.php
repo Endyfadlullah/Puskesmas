@@ -85,10 +85,15 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/antrian/store', [AdminController::class, 'storeAntrianAdmin'])->name('admin.antrian.store');
     Route::get('/admin/antrian/{antrian}/cetak', [AdminController::class, 'cetakAntrian'])->name('admin.antrian.cetak');
 
-    // TTS Routes
-    Route::post('/admin/tts/generate', [TTSController::class, 'generateQueueCall'])->name('admin.tts.generate');
-    Route::post('/admin/tts/audio-sequence', [TTSController::class, 'getAudioSequence'])->name('admin.tts.audio-sequence');
-    Route::post('/admin/tts/play-sequence', [TTSController::class, 'playAudioSequence'])->name('admin.tts.play-sequence');
+    // Simple TTS Routes (Windows Compatible)
+    Route::get('/admin/tts', [TTSController::class, 'index'])->name('admin.tts.index');
+    Route::post('/admin/tts/generate', [TTSController::class, 'generateQueueTTS'])->name('admin.tts.generate');
+    Route::post('/admin/tts/play', [TTSController::class, 'playTTS'])->name('admin.tts.play');
+    Route::get('/admin/tts/play', [TTSController::class, 'playTTS'])->name('admin.tts.play.get');
+    Route::get('/admin/tts/test', [TTSController::class, 'testTTS'])->name('admin.tts.test');
+    Route::get('/admin/tts/voices', [TTSController::class, 'getVoices'])->name('admin.tts.voices');
+    Route::post('/admin/tts/cleanup', [TTSController::class, 'cleanupFiles'])->name('admin.tts.cleanup');
+    Route::get('/admin/tts/status', [TTSController::class, 'getStatus'])->name('admin.tts.status');
 
     // Indonesian TTS Routes
     Route::post('/admin/indonesian-tts/generate', [IndonesianTTSController::class, 'generateQueueCall'])->name('admin.indonesian-tts.generate');
@@ -102,6 +107,12 @@ Route::middleware('auth:admin')->group(function () {
 
 // Public TTS Routes (for display)
 Route::post('/tts/play-sequence', [TTSController::class, 'playAudioSequence'])->name('tts.play-sequence');
+
+// Public TTS route for display page
+Route::get('/tts/audio/{filename}', [TTSController::class, 'playPublicAudio'])->name('tts.audio.public');
+
+// Test TTS route (public)
+Route::get('/tts/test-public', [TTSController::class, 'testPublicTTS'])->name('tts.test.public');
 
 // API Routes for display
 Route::get('/api/check-new-calls', [DisplayController::class, 'checkNewCalls'])->name('api.check-new-calls');

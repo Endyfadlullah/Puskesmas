@@ -262,29 +262,61 @@
                                 console.warn('Speech synthesis not supported');
                                 resolve();
                             }
-                        } else {
-                            // Play audio file
+                        } else if (audioItem.type === 'audio_file') {
+                            // Play audio file from our TTS system
                             const audio = new Audio(audioItem.url);
 
                             audio.addEventListener('loadeddata', () => {
-                                audio.play();
+                                console.log('Audio loaded, playing...');
+                                audio.play().catch(error => {
+                                    console.error('Audio play error:', error);
+                                    resolve();
+                                });
                             });
 
                             audio.addEventListener('ended', () => {
+                                console.log('Audio ended');
                                 resolve();
                             });
 
                             audio.addEventListener('error', (error) => {
                                 console.error('Audio playback error:', error);
-                                resolve(); // Continue even if audio fails
+                                // Fallback to browser TTS if audio file fails
+                                this.fallbackToBrowserTTS(audioItem.text, resolve);
                             });
 
                             // Fallback timeout
                             setTimeout(() => {
                                 resolve();
                             }, audioItem.duration || 8000);
+                        } else {
+                            console.warn('Unknown audio type:', audioItem.type);
+                            resolve();
                         }
                     });
+                }
+
+                // Fallback to browser TTS if audio file fails
+                fallbackToBrowserTTS(text, resolve) {
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'id-ID';
+                        utterance.rate = 0.85;
+                        utterance.volume = 1.0;
+
+                        utterance.addEventListener('end', () => {
+                            resolve();
+                        });
+
+                        utterance.addEventListener('error', (error) => {
+                            console.error('Fallback TTS error:', error);
+                            resolve();
+                        });
+
+                        speechSynthesis.speak(utterance);
+                    } else {
+                        resolve();
+                    }
                 }
 
                 // Utility function for delays
@@ -295,6 +327,8 @@
                 // Play TTS for queue call
                 async playQueueCall(poliName, queueNumber) {
                     try {
+                        console.log('Playing TTS for:', poliName, queueNumber);
+                        
                         const response = await fetch('{{ route('tts.play-sequence') }}', {
                             method: 'POST',
                             headers: {
@@ -310,12 +344,17 @@
                         const data = await response.json();
 
                         if (data.success && data.audio_sequence) {
+                            console.log('Audio sequence received:', data.audio_sequence);
                             await this.playAudioSequence(data.audio_sequence);
                         } else {
                             console.error('Failed to get audio sequence:', data.message);
+                            // Fallback to browser TTS
+                            this.fallbackToBrowserTTS(`Nomor antrian ${queueNumber} untuk ${poliName}. Silakan menuju ke loket yang tersedia.`, () => {});
                         }
                     } catch (error) {
                         console.error('Error playing TTS:', error);
+                        // Fallback to browser TTS
+                        this.fallbackToBrowserTTS(`Nomor antrian ${queueNumber} untuk ${poliName}. Silakan menuju ke loket yang tersedia.`, () => {});
                     }
                 }
             }
