@@ -19,63 +19,63 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
                     <!-- Poli Umum Card -->
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-3xl text-blue-500">👨‍⚕️</div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="text-2xl lg:text-3xl text-blue-500">👨‍⚕️</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $poliUmumCount ?? 0 }}</div>
-                                <div class="text-sm text-gray-600">Antrian menunggu</div>
+                                <div class="text-xl lg:text-2xl font-bold text-gray-900">{{ $poliUmumCount ?? 0 }}</div>
+                                <div class="text-xs lg:text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Poli Umum</h3>
-                        <a href="{{ route('admin.poli.umum') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-2">Poli Umum</h3>
+                        <a href="{{ route('admin.poli.umum') }}" class="text-blue-600 hover:text-blue-800 text-xs lg:text-sm font-medium">
                             Lihat Antrian →
                         </a>
                     </div>
 
                     <!-- Poli Gigi Card -->
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-3xl text-green-500">🦷</div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="text-2xl lg:text-3xl text-green-500">🦷</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $poliGigiCount ?? 0 }}</div>
-                                <div class="text-sm text-gray-600">Antrian menunggu</div>
+                                <div class="text-xl lg:text-2xl font-bold text-gray-900">{{ $poliGigiCount ?? 0 }}</div>
+                                <div class="text-xs lg:text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Poli Gigi</h3>
-                        <a href="{{ route('admin.poli.gigi') }}" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-2">Poli Gigi</h3>
+                        <a href="{{ route('admin.poli.gigi') }}" class="text-green-600 hover:text-green-800 text-xs lg:text-sm font-medium">
                             Lihat Antrian →
                         </a>
                     </div>
 
                     <!-- Poli Jiwa Card -->
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-3xl text-purple-500">🧠</div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="text-2xl lg:text-3xl text-purple-500">🧠</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $poliJiwaCount ?? 0 }}</div>
-                                <div class="text-sm text-gray-600">Antrian menunggu</div>
+                                <div class="text-xl lg:text-2xl font-bold text-gray-900">{{ $poliJiwaCount ?? 0 }}</div>
+                                <div class="text-xs lg:text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Poli Jiwa</h3>
-                        <a href="{{ route('admin.poli.jiwa') }}" class="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-2">Poli Jiwa</h3>
+                        <a href="{{ route('admin.poli.jiwa') }}" class="text-purple-600 hover:text-purple-800 text-xs lg:text-sm font-medium">
                             Lihat Antrian →
                         </a>
                     </div>
 
                     <!-- Poli Tradisional Card -->
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-3xl text-yellow-500">🌿</div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="text-2xl lg:text-3xl text-yellow-500">🌿</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $poliTradisionalCount ?? 0 }}</div>
-                                <div class="text-sm text-gray-600">Antrian menunggu</div>
+                                <div class="text-xl lg:text-2xl font-bold text-gray-900">{{ $poliTradisionalCount ?? 0 }}</div>
+                                <div class="text-xs lg:text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Poli Tradisional</h3>
-                        <a href="{{ route('admin.poli.tradisional') }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
+                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-2">Poli Tradisional</h3>
+                        <a href="{{ route('admin.poli.tradisional') }}" class="text-yellow-600 hover:text-yellow-800 text-xs lg:text-sm font-medium">
                             Lihat Antrian →
                         </a>
                     </div>

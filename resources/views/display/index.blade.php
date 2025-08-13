@@ -32,31 +32,34 @@
     <div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700">
         <div class="container mx-auto px-4 py-6 md:py-8">
             <!-- Header -->
-            <div class="text-center mb-8 md:mb-12 animate-fade-in">
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3">🏥 PUSKESMAS</h1>
-                <p class="text-blue-200 text-lg md:text-xl">Sistem Antrian Digital</p>
-                <div class="w-24 h-1 bg-white mx-auto mt-4 rounded-full"></div>
+            <div class="flex flex-col md:flex-row items-center justify-between mb-6 md:mb-8 animate-fade-in">
+                <!-- Logo and Title Section -->
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">🏥 PUSKESMAS</h1>
+                    <p class="text-blue-200 text-sm md:text-base">Sistem Antrian Digital</p>
+                    <div class="w-16 h-1 bg-white mx-auto md:mx-0 mt-2 rounded-full"></div>
+                </div>
 
                 <!-- Digital Clock with Running Seconds -->
-                <div class="mt-6 flex justify-center">
+                <div class="flex justify-center md:justify-end">
                     <div
-                        class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/30 shadow-2xl animate-pulse clock-glow">
-                        <div class="flex items-center space-x-3">
+                        class="bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 border border-white/30 shadow-xl animate-pulse clock-glow">
+                        <div class="flex items-center space-x-2">
                             <div class="relative">
-                                <svg class="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <!-- Animated dot for seconds -->
-                                <div class="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                                <div class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-400 rounded-full animate-ping"></div>
                             </div>
                             <div class="text-center">
-                                <div class="text-lg md:text-xl text-blue-200 font-medium" id="current-date">Loading...</div>
-                                <div class="text-2xl md:text-3xl lg:text-4xl text-white font-bold font-mono tracking-wider time-digit"
+                                <div class="text-sm md:text-base text-blue-200 font-medium" id="current-date">Loading...</div>
+                                <div class="text-lg md:text-xl lg:text-2xl text-white font-bold font-mono tracking-wider time-digit"
                                     id="current-time">00:00:00</div>
-                                <div class="text-xs text-blue-200 mt-1">Waktu Real-time</div>
-                                <div class="text-xs text-blue-100 mt-1" id="time-format">24 Jam</div>
+                                <div class="text-xs text-blue-200">Waktu Real-time</div>
+                                <div class="text-xs text-blue-100" id="time-format">24 Jam</div>
                             </div>
                         </div>
                     </div>
@@ -64,39 +67,39 @@
             </div>
 
             <!-- Current Queue Display -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
                 <!-- Poli Umum -->
-                <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 animate-slide-up">
-                    <div class="text-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-3">Poli Umum</h2>
-                        <div class="w-16 h-1 bg-blue-500 mx-auto rounded-full"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 animate-slide-up">
+                    <div class="text-center mb-4 md:mb-6">
+                        <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Poli Umum</h2>
+                        <div class="w-12 md:w-16 h-1 bg-blue-500 mx-auto rounded-full"></div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <div class="text-4xl md:text-6xl lg:text-7xl font-bold text-blue-600 mb-3" id="poli-umum-current">
+                    <div class="text-center mb-4 md:mb-6">
+                        <div class="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-blue-600 mb-2 md:mb-3" id="poli-umum-current">
                             {{ $poliUmumCurrent?->no_antrian ?? '---' }}
                         </div>
-                        <p class="text-gray-600 text-sm md:text-base font-medium">Sedang Dipanggil</p>
+                        <p class="text-gray-600 text-xs md:text-sm lg:text-base font-medium">Sedang Dipanggil</p>
                     </div>
 
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3" data-next-queue="poli-umum-next">
+                    <div class="mt-4 md:mt-6">
+                        <h3 class="text-sm md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Antrian Berikutnya:</h3>
+                        <div class="space-y-2 md:space-y-3" data-next-queue="poli-umum-next">
                             @forelse($poliUmumNext ?? [] as $antrian)
                                 <div
-                                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                                    class="bg-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 hover:shadow-md transition duration-200">
                                     <span
-                                        class="text-lg md:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
+                                        class="text-sm md:text-lg lg:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
                                 </div>
                             @empty
-                                <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                <div class="text-gray-500 text-center py-3 md:py-6 bg-gray-50 rounded-xl">
+                                    <svg class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                         </path>
                                     </svg>
-                                    <p class="text-sm">Tidak ada antrian</p>
+                                    <p class="text-xs md:text-sm">Tidak ada antrian</p>
                                 </div>
                             @endforelse
                         </div>
@@ -104,37 +107,37 @@
                 </div>
 
                 <!-- Poli Gigi -->
-                <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 animate-slide-up" style="animation-delay: 0.1s;">
-                    <div class="text-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-3">Poli Gigi</h2>
-                        <div class="w-16 h-1 bg-green-500 mx-auto rounded-full"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="text-center mb-4 md:mb-6">
+                        <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Poli Gigi</h2>
+                        <div class="w-12 md:w-16 h-1 bg-green-500 mx-auto rounded-full"></div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <div class="text-4xl md:text-6xl lg:text-7xl font-bold text-green-600 mb-3" id="poli-gigi-current">
+                    <div class="text-center mb-4 md:mb-6">
+                        <div class="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-green-600 mb-2 md:mb-3" id="poli-gigi-current">
                             {{ $poliGigiCurrent?->no_antrian ?? '---' }}
                         </div>
-                        <p class="text-gray-600 text-sm md:text-base font-medium">Sedang Dipanggil</p>
+                        <p class="text-gray-600 text-xs md:text-sm lg:text-base font-medium">Sedang Dipanggil</p>
                     </div>
 
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3" data-next-queue="poli-gigi-next">
+                    <div class="mt-4 md:mt-6">
+                        <h3 class="text-sm md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Antrian Berikutnya:</h3>
+                        <div class="space-y-2 md:space-y-3" data-next-queue="poli-gigi-next">
                             @forelse($poliGigiNext ?? [] as $antrian)
                                 <div
-                                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                                    class="bg-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 hover:shadow-md transition duration-200">
                                     <span
-                                        class="text-lg md:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
+                                        class="text-sm md:text-lg lg:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
                                 </div>
                             @empty
-                                <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                <div class="text-gray-500 text-center py-3 md:py-6 bg-gray-50 rounded-xl">
+                                    <svg class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                         </path>
                                     </svg>
-                                    <p class="text-sm">Tidak ada antrian</p>
+                                    <p class="text-xs md:text-sm">Tidak ada antrian</p>
                                 </div>
                             @endforelse
                         </div>
@@ -142,37 +145,37 @@
                 </div>
 
                 <!-- Poli Jiwa -->
-                <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 animate-slide-up" style="animation-delay: 0.2s;">
-                    <div class="text-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-3">Poli Jiwa</h2>
-                        <div class="w-16 h-1 bg-pink-500 mx-auto rounded-full"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="text-center mb-4 md:mb-6">
+                        <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Poli Jiwa</h2>
+                        <div class="w-12 md:w-16 h-1 bg-pink-500 mx-auto rounded-full"></div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <div class="text-4xl md:text-6xl lg:text-7xl font-bold text-pink-600 mb-3" id="poli-jiwa-current">
+                    <div class="text-center mb-4 md:mb-6">
+                        <div class="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-pink-600 mb-2 md:mb-3" id="poli-jiwa-current">
                             {{ $poliJiwaCurrent?->no_antrian ?? '---' }}
                         </div>
-                        <p class="text-gray-600 text-sm md:text-base font-medium">Sedang Dipanggil</p>
+                        <p class="text-gray-600 text-xs md:text-sm lg:text-base font-medium">Sedang Dipanggil</p>
                     </div>
 
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3" data-next-queue="poli-jiwa-next">
+                    <div class="mt-4 md:mt-6">
+                        <h3 class="text-sm md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Antrian Berikutnya:</h3>
+                        <div class="space-y-2 md:space-y-3" data-next-queue="poli-jiwa-next">
                             @forelse($poliJiwaNext ?? [] as $antrian)
                                 <div
-                                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                                    class="bg-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 hover:shadow-md transition duration-200">
                                     <span
-                                        class="text-lg md:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
+                                        class="text-sm md:text-lg lg:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
                                 </div>
                             @empty
-                                <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                <div class="text-gray-500 text-center py-3 md:py-6 bg-gray-50 rounded-xl">
+                                    <svg class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                         </path>
                                     </svg>
-                                    <p class="text-sm">Tidak ada antrian</p>
+                                    <p class="text-xs md:text-sm">Tidak ada antrian</p>
                                 </div>
                             @endforelse
                         </div>
@@ -180,37 +183,37 @@
                 </div>
 
                 <!-- Poli Tradisional -->
-                <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 animate-slide-up" style="animation-delay: 0.3s;">
-                    <div class="text-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-3">Poli Tradisional</h2>
-                        <div class="w-16 h-1 bg-yellow-500 mx-auto rounded-full"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 animate-slide-up" style="animation-delay: 0.3s;">
+                    <div class="text-center mb-4 md:mb-6">
+                        <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Poli Tradisional</h2>
+                        <div class="w-12 md:w-16 h-1 bg-yellow-500 mx-auto rounded-full"></div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <div class="text-4xl md:text-6xl lg:text-7xl font-bold text-yellow-600 mb-3"
+                    <div class="text-center mb-4 md:mb-6">
+                        <div class="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-yellow-600 mb-2 md:mb-3"
                             id="poli-tradisional-current">
                             {{ $poliTradisionalCurrent?->no_antrian ?? '---' }}
                         </div>
-                        <p class="text-gray-600 text-sm md:text-base font-medium">Sedang Dipanggil</p>
+                        <p class="text-gray-600 text-xs md:text-sm lg:text-base font-medium">Sedang Dipanggil</p>
                     </div>
 
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Antrian Berikutnya:</h3>
-                        <div class="space-y-3" data-next-queue="poli-tradisional-next">
+                    <div class="mt-4 md:mt-6">
+                        <h3 class="text-sm md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Antrian Berikutnya:</h3>
+                        <div class="space-y-2 md:space-y-3" data-next-queue="poli-tradisional-next">
                             @forelse($poliTradisionalNext ?? [] as $antrian)
                                 <div
-                                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                                    class="bg-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 hover:shadow-md transition duration-200">
                                     <span
-                                        class="text-lg md:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
+                                        class="text-sm md:text-lg lg:text-xl font-bold text-gray-900">{{ $antrian->no_antrian }}</span>
                                 </div>
                             @empty
-                                <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                <div class="text-gray-500 text-center py-3 md:py-6 bg-gray-50 rounded-xl">
+                                    <svg class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <p class="text-sm">Tidak ada antrian</p>
+                                    <p class="text-xs md:text-sm">Tidak ada antrian</p>
                                 </div>
                             @endforelse
                         </div>
@@ -632,17 +635,17 @@
 
                 if (nextQueues && nextQueues.length > 0) {
                     container.innerHTML = nextQueues.map(antrian => `
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200">
-                            <span class="text-lg md:text-xl font-bold text-gray-900">${antrian.no_antrian}</span>
+                        <div class="bg-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 hover:shadow-md transition duration-200">
+                            <span class="text-sm md:text-lg lg:text-xl font-bold text-gray-900">${antrian.no_antrian}</span>
                         </div>
                     `).join('');
                 } else {
                     container.innerHTML = `
-                        <div class="text-gray-500 text-center py-6 bg-gray-50 rounded-xl">
-                            <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="text-gray-500 text-center py-3 md:py-6 bg-gray-50 rounded-xl">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <p class="text-sm">Tidak ada antrian</p>
+                            <p class="text-xs md:text-sm">Tidak ada antrian</p>
                         </div>
                     `;
                 }

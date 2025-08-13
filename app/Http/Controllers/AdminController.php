@@ -29,34 +29,30 @@ class AdminController extends Controller
         $antrianHariIni = Antrian::whereDate('created_at', today())->count();
         $polis = Poli::count();
 
-        // Get counts for each poli (only today's waiting queues)
+        // Get counts for each poli (all waiting queues - not just today)
         // Using direct queries for better performance and debugging
         $poliUmumCount = DB::table('antrians')
             ->join('polis', 'antrians.poli_id', '=', 'polis.id')
             ->where('polis.nama_poli', 'umum')
             ->where('antrians.status', 'menunggu')
-            ->whereDate('antrians.created_at', today())
             ->count();
 
         $poliGigiCount = DB::table('antrians')
             ->join('polis', 'antrians.poli_id', '=', 'polis.id')
             ->where('polis.nama_poli', 'gigi')
             ->where('antrians.status', 'menunggu')
-            ->whereDate('antrians.created_at', today())
             ->count();
 
         $poliJiwaCount = DB::table('antrians')
             ->join('polis', 'antrians.poli_id', '=', 'polis.id')
             ->where('polis.nama_poli', 'kesehatan jiwa')
             ->where('antrians.status', 'menunggu')
-            ->whereDate('antrians.created_at', today())
             ->count();
 
         $poliTradisionalCount = DB::table('antrians')
             ->join('polis', 'antrians.poli_id', '=', 'polis.id')
             ->where('polis.nama_poli', 'kesehatan tradisional')
             ->where('antrians.status', 'menunggu')
-            ->whereDate('antrians.created_at', today())
             ->count();
 
         // Temporary debug: Check if there are any antrian at all today
@@ -69,6 +65,16 @@ class AdminController extends Controller
             ->whereDate('created_at', today())
             ->count();
 
+        // Debug: Check all polis in database
+        $allPolis = DB::table('polis')->get();
+        
+        // Debug: Check all antrian today with poli info
+        $allAntrianToday = DB::table('antrians')
+            ->join('polis', 'antrians.poli_id', '=', 'polis.id')
+            ->whereDate('antrians.created_at', today())
+            ->select('antrians.*', 'polis.nama_poli')
+            ->get();
+
         // Log debug info
         Log::info('Dashboard Debug:', [
             'totalAntrianToday' => $totalAntrianToday,
@@ -77,7 +83,17 @@ class AdminController extends Controller
             'poliGigiCount' => $poliGigiCount,
             'poliJiwaCount' => $poliJiwaCount,
             'poliTradisionalCount' => $poliTradisionalCount,
-            'today' => today()->toDateString()
+            'today' => today()->toDateString(),
+            'allPolis' => $allPolis->pluck('nama_poli', 'id')->toArray(),
+            'allAntrianToday' => $allAntrianToday->map(function($antrian) {
+                return [
+                    'id' => $antrian->id,
+                    'no_antrian' => $antrian->no_antrian,
+                    'status' => $antrian->status,
+                    'poli_nama' => $antrian->nama_poli,
+                    'created_at' => $antrian->created_at
+                ];
+            })->toArray()
         ]);
 
         // Get recent antrian

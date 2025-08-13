@@ -27,3 +27,18 @@
         </div>
     </div>
 </nav>
+
+<script>
+// Logout confirmation function
+function confirmLogout() {
+    if (confirm('Apakah Anda yakin ingin logout?')) {
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+            logoutForm.submit();
+        } else {
+            // Fallback jika form tidak ditemukan
+            window.location.href = '{{ route("logout") }}';
+        }
+    }
+}
+</script>
