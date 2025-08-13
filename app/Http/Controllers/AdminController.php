@@ -216,13 +216,6 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter berdasarkan jenis kelamin
-        if ($request->filled('jenis_kelamin')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('jenis_kelamin', $request->jenis_kelamin);
-            });
-        }
-
         $antrian = $query->orderBy('created_at', 'desc')->get();
         $polis = Poli::all();
 
@@ -231,9 +224,17 @@ class AdminController extends Controller
         $antrianSelesai = $antrian->where('status', 'selesai')->count();
         $antrianMenunggu = $antrian->where('status', 'menunggu')->count();
         $antrianDipanggil = $antrian->where('status', 'dipanggil')->count();
-        $antrianSedang = $antrian->where('status', 'sedang')->count();
+        $antrianBatal = $antrian->where('status', 'batal')->count();
 
-        return view('admin.laporan.index', compact('antrian', 'polis', 'totalAntrian', 'antrianSelesai', 'antrianMenunggu', 'antrianDipanggil', 'antrianSedang'));
+        return view('admin.laporan.index', compact(
+            'antrian', 
+            'polis', 
+            'totalAntrian', 
+            'antrianSelesai', 
+            'antrianMenunggu', 
+            'antrianDipanggil', 
+            'antrianBatal'
+        ));
     }
 
     public function exportPDF(Request $request)
@@ -257,13 +258,6 @@ class AdminController extends Controller
         // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-
-        // Filter berdasarkan jenis kelamin
-        if ($request->filled('jenis_kelamin')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('jenis_kelamin', $request->jenis_kelamin);
-            });
         }
 
         $antrian = $query->orderBy('created_at', 'desc')->get();
@@ -300,13 +294,6 @@ class AdminController extends Controller
         // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-
-        // Filter berdasarkan jenis kelamin
-        if ($request->filled('jenis_kelamin')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('jenis_kelamin', $request->jenis_kelamin);
-            });
         }
 
         $antrian = $query->orderBy('created_at', 'desc')->get();

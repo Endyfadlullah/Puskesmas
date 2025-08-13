@@ -120,6 +120,14 @@
     @yield('content')
 
     @stack('scripts')
+    
+    <script>
+        // Global logout function
+        function confirmLogout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
 </body>
-
 </html>

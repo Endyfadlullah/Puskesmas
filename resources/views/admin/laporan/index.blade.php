@@ -1,4 +1,6 @@
 
+@extends('layouts.app')
+
 @section('title', 'Laporan Antrian - Admin Dashboard')
 
 @section('content')
@@ -18,15 +20,26 @@
                                 <h1 class="text-2xl font-bold text-gray-900 mb-2">Laporan Antrian</h1>
                                 <p class="text-gray-600">Laporan dan statistik antrian puskesmas</p>
                             </div>
-                            <button onclick="exportToPDF()"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                                Export PDF
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="exportToPDF()"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition duration-200">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Export PDF
+                                </button>
+                                <button onclick="exportToExcel()"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 transition duration-200">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Export Excel
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -36,30 +49,31 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
-                                <input type="date" id="tanggal_mulai" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input type="date" id="tanggal_mulai" value="{{ request('tanggal_mulai') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
-                                <input type="date" id="tanggal_akhir" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input type="date" id="tanggal_akhir" value="{{ request('tanggal_akhir') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Poli</label>
                                 <select id="poli_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Semua Poli</option>
-                                    <option value="1">Poli Umum</option>
-                                    <option value="2">Poli Gigi</option>
-                                    <option value="3">Poli Jiwa</option>
-                                    <option value="4">Poli Tradisional</option>
+                                    @foreach($polis as $poli)
+                                        <option value="{{ $poli->id }}" {{ request('poli_id') == $poli->id ? 'selected' : '' }}>
+                                            {{ ucfirst($poli->nama_poli) }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                                 <select id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Semua Status</option>
-                                    <option value="menunggu">Menunggu</option>
-                                    <option value="dipanggil">Dipanggil</option>
-                                    <option value="selesai">Selesai</option>
-                                    <option value="batal">Batal</option>
+                                    <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                    <option value="dipanggil" {{ request('status') == 'dipanggil' ? 'selected' : '' }}>Dipanggil</option>
+                                    <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                    <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option>
                                 </select>
                             </div>
                         </div>
@@ -132,11 +146,57 @@
                         </div>
                     </div>
 
-                    <!-- Chart Section -->
-                    <div class="bg-white rounded-lg shadow-sm border p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Grafik Antrian per Poli</h3>
-                        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                            <p class="text-gray-500">Chart akan ditampilkan di sini</p>
+                    <!-- Data Table -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Data Antrian</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poli</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @if(isset($antrian) && $antrian->count() > 0)
+                                        @foreach($antrian as $index => $item)
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $index + 1 }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->user->nama ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ucfirst($item->poli->nama_poli ?? 'N/A') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                        @if($item->status == 'selesai') bg-green-100 text-green-800
+                                                        @elseif($item->status == 'menunggu') bg-yellow-100 text-yellow-800
+                                                        @elseif($item->status == 'dipanggil') bg-blue-100 text-blue-800
+                                                        @else bg-red-100 text-red-800
+                                                        @endif">
+                                                        {{ ucfirst($item->status) }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    @if($item->created_at)
+                                                        {{ $item->created_at->format('d/m/Y H:i') }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                                Tidak ada data antrian
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -182,6 +242,19 @@
                 const status = params.get('status') || '';
 
                 const url = `{{ route('admin.laporan.export-pdf') }}?tanggal_mulai=${tanggalMulai}&tanggal_akhir=${tanggalAkhir}&poli_id=${poliId}&status=${status}`;
+
+                window.location.href = url;
+            }
+
+            // Function to export data to Excel
+            function exportToExcel() {
+                const params = new URLSearchParams(window.location.search);
+                const tanggalMulai = params.get('tanggal_mulai') || '';
+                const tanggalAkhir = params.get('tanggal_akhir') || '';
+                const poliId = params.get('poli_id') || '';
+                const status = params.get('status') || '';
+
+                const url = `{{ route('admin.laporan.export-excel') }}?tanggal_mulai=${tanggalMulai}&tanggal_akhir=${tanggalAkhir}&poli_id=${poliId}&status=${status}`;
 
                 window.location.href = url;
             }

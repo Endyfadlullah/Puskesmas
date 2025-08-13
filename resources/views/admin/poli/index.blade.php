@@ -15,10 +15,10 @@
                 <!-- Header -->
                 <div class="mb-6">
                     <div class="flex items-center justify-between">
-                        <div>
+                    <div>
                             <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $title }}</h1>
                             <p class="text-gray-600">Kelola antrian untuk {{ $poli->nama ?? 'Poli' }}</p>
-                        </div>
+                    </div>
                         {{-- <a href="{{ route('admin.antrian.tambah') }}"
                             class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition duration-200">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,7 +28,7 @@
                             Tambah Antrian
                         </a> --}}
                     </div>
-                </div>
+                    </div>
 
                     <!-- Table -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -228,31 +228,31 @@
                                                 <div>
                                                     <span class="font-medium text-gray-700">Jenis Kelamin:</span>
                                                     <span class="text-gray-600">{{ $antrian->user?->jenis_kelamin }}</span>
-                                            </div>
-                                            <div>
-                                                <span class="font-medium text-gray-700">Nomor HP:</span>
-                                                <span class="text-gray-600">{{ $antrian->user?->no_hp }}</span>
-                                            </div>
-                                            <div>
-                                                <span class="font-medium text-gray-700">Nomor KTP:</span>
-                                                <span class="text-gray-600">{{ $antrian->user?->no_ktp }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Nomor HP:</span>
+                                                    <span class="text-gray-600">{{ $antrian->user?->no_hp }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-gray-700">Nomor KTP:</span>
+                                                    <span class="text-gray-600">{{ $antrian->user?->no_ktp }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="text-center py-8 text-gray-500">
-                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                                <p class="text-lg font-medium">Tidak ada antrian</p>
-                                <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
-                            </div>
-                        @endforelse
+                            @empty
+                                <div class="text-center py-8 text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-lg font-medium">Tidak ada antrian</p>
+                                    <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
+                                </div>
+                            @endforelse
                     </div>
                 </div>
             </div>

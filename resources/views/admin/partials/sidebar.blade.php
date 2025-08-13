@@ -2,7 +2,7 @@
 <aside id="sidebar"
     class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition duration-200 ease-in-out">
     <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900"></h2>
+        <h2 class="text-lg font-semibold text-gray-900">Menu Admin</h2>
         <button id="sidebar-close" class="lg:hidden text-gray-500 hover:text-gray-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -114,7 +114,10 @@
         </div>
 
         <!-- Logout Button at Bottom -->
-        <div class="pt-6 border-t border-gray-200">
+        <div class="pt-6 border-t border-gray-200 mt-auto">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                @csrf
+            </form>
             <button onclick="confirmLogout()"
                 class="w-full flex items-center px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition duration-200">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,3 +133,5 @@
 
 <!-- Overlay for mobile -->
 <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+
+@include('admin.partials.sidebar-script')
