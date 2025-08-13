@@ -13,8 +13,16 @@
                     <h1 class="text-xl md:text-2xl font-bold text-primary">🏥 Admin Puskesmas</h1>
                 </div>
             </div>
-            <div class="hidden md:flex items-center space-x-4">
-                <span class="text-gray-700">Selamat datang, Admin</span>
+            <div class="flex items-center space-x-4">
+                <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                    @csrf
+                    <button type="button" onclick="confirmLogout()" class="text-gray-700 hover:text-red-600 flex items-center">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>

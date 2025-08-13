@@ -25,7 +25,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-3xl text-blue-500">👨‍⚕️</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $antrianUmum ?? 0 }}</div>
+                                <div class="text-2xl font-bold text-gray-900">{{ $poliUmumCount ?? 0 }}</div>
                                 <div class="text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
@@ -40,7 +40,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-3xl text-green-500">🦷</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $antrianGigi ?? 0 }}</div>
+                                <div class="text-2xl font-bold text-gray-900">{{ $poliGigiCount ?? 0 }}</div>
                                 <div class="text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-3xl text-purple-500">🧠</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $antrianJiwa ?? 0 }}</div>
+                                <div class="text-2xl font-bold text-gray-900">{{ $poliJiwaCount ?? 0 }}</div>
                                 <div class="text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-3xl text-yellow-500">🌿</div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">{{ $antrianTradisional ?? 0 }}</div>
+                                <div class="text-2xl font-bold text-gray-900">{{ $poliTradisionalCount ?? 0 }}</div>
                                 <div class="text-sm text-gray-600">Antrian menunggu</div>
                             </div>
                         </div>

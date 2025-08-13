@@ -52,10 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Logout confirmation
+// Logout confirmation function
 function confirmLogout() {
     if (confirm('Apakah Anda yakin ingin keluar?')) {
-        document.getElementById('logout-form').submit();
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+            logoutForm.submit();
+        } else {
+            // Fallback jika form tidak ditemukan
+            window.location.href = '{{ route("logout") }}';
+        }
     }
 }
+
+// Global logout function untuk memastikan tersedia di semua halaman
+window.confirmLogout = confirmLogout;
 </script>

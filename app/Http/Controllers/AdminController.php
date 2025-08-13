@@ -29,22 +29,56 @@ class AdminController extends Controller
         $antrianHariIni = Antrian::whereDate('created_at', today())->count();
         $polis = Poli::count();
 
-        // Get counts for each poli
-        $poliUmumCount = Antrian::whereHas('poli', function ($query) {
-            $query->where('nama_poli', 'umum');
-        })->where('status', 'menunggu')->count();
+        // Get counts for each poli (only today's waiting queues)
+        // Using direct queries for better performance and debugging
+        $poliUmumCount = DB::table('antrians')
+            ->join('polis', 'antrians.poli_id', '=', 'polis.id')
+            ->where('polis.nama_poli', 'umum')
+            ->where('antrians.status', 'menunggu')
+            ->whereDate('antrians.created_at', today())
+            ->count();
 
-        $poliGigiCount = Antrian::whereHas('poli', function ($query) {
-            $query->where('nama_poli', 'gigi');
-        })->where('status', 'menunggu')->count();
+        $poliGigiCount = DB::table('antrians')
+            ->join('polis', 'antrians.poli_id', '=', 'polis.id')
+            ->where('polis.nama_poli', 'gigi')
+            ->where('antrians.status', 'menunggu')
+            ->whereDate('antrians.created_at', today())
+            ->count();
 
-        $poliJiwaCount = Antrian::whereHas('poli', function ($query) {
-            $query->where('nama_poli', 'kesehatan jiwa');
-        })->where('status', 'menunggu')->count();
+        $poliJiwaCount = DB::table('antrians')
+            ->join('polis', 'antrians.poli_id', '=', 'polis.id')
+            ->where('polis.nama_poli', 'kesehatan jiwa')
+            ->where('antrians.status', 'menunggu')
+            ->whereDate('antrians.created_at', today())
+            ->count();
 
-        $poliTradisionalCount = Antrian::whereHas('poli', function ($query) {
-            $query->where('nama_poli', 'kesehatan tradisional');
-        })->where('status', 'menunggu')->count();
+        $poliTradisionalCount = DB::table('antrians')
+            ->join('polis', 'antrians.poli_id', '=', 'polis.id')
+            ->where('polis.nama_poli', 'kesehatan tradisional')
+            ->where('antrians.status', 'menunggu')
+            ->whereDate('antrians.created_at', today())
+            ->count();
+
+        // Temporary debug: Check if there are any antrian at all today
+        $totalAntrianToday = DB::table('antrians')
+            ->whereDate('created_at', today())
+            ->count();
+        
+        $totalWaitingToday = DB::table('antrians')
+            ->where('status', 'menunggu')
+            ->whereDate('created_at', today())
+            ->count();
+
+        // Log debug info
+        Log::info('Dashboard Debug:', [
+            'totalAntrianToday' => $totalAntrianToday,
+            'totalWaitingToday' => $totalWaitingToday,
+            'poliUmumCount' => $poliUmumCount,
+            'poliGigiCount' => $poliGigiCount,
+            'poliJiwaCount' => $poliJiwaCount,
+            'poliTradisionalCount' => $poliTradisionalCount,
+            'today' => today()->toDateString()
+        ]);
 
         // Get recent antrian
         $antrianTerbaru = Antrian::with(['user', 'poli'])
