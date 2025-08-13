@@ -88,6 +88,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/antrian/store', [AdminController::class, 'storeAntrianAdmin'])->name('admin.antrian.store');
     Route::get('/admin/antrian/{antrian}/cetak', [AdminController::class, 'cetakAntrian'])->name('admin.antrian.cetak');
 
+    Route::post('/admin/cek-status-antrian-sebelumnya', [AdminController::class, 'cekStatusAntrianSebelumnya'])->name('admin.cek-status-antrian-sebelumnya');
 
 });
 

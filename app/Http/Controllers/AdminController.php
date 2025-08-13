@@ -468,6 +468,9 @@ class AdminController extends Controller
     public function panggilAntrianById(Antrian $antrian)
     {
         try {
+            // Load relasi yang diperlukan
+            $antrian->load(['user', 'poli']);
+            
             if ($antrian->status !== 'menunggu') {
                 return response()->json([
                     'success' => false,
@@ -490,13 +493,27 @@ class AdminController extends Controller
             // Broadcast event for display page
             event(new \App\Events\AntrianDipanggil($antrian));
 
+            // Refresh data antrian setelah update
+            $antrian->refresh();
+            $antrian->load(['user', 'poli']);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Antrian ' . $antrian->no_antrian . ' dipanggil',
                 'poli_name' => $antrian->poli->nama_poli,
-                'queue_number' => $antrian->no_antrian
+                'queue_number' => $antrian->no_antrian,
+                'antrian' => [
+                    'id' => $antrian->id,
+                    'no_antrian' => $antrian->no_antrian,
+                    'poli_name' => $antrian->poli->nama_poli,
+                    'user_name' => $antrian->user->nama,
+                    'status' => $antrian->status
+                ]
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error in panggilAntrianById: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
@@ -811,6 +828,52 @@ class AdminController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function cekStatusAntrianSebelumnya(Request $request)
+    {
+        try {
+            $request->validate([
+                'poli_name' => 'required|string'
+            ]);
+
+            $poliName = $request->input('poli_name');
+
+            // Cari antrian yang sedang dipanggil (status 'dipanggil') untuk poli tertentu
+            $antrianSedangDipanggil = Antrian::whereHas('poli', function($query) use ($poliName) {
+                    $query->where('nama_poli', $poliName);
+                })
+                ->where('status', 'dipanggil')
+                ->whereDate('created_at', today())
+                ->with(['user', 'poli']) // Pastikan relasi di-load
+                ->first();
+
+            if ($antrianSedangDipanggil) {
+                return response()->json([
+                    'success' => true,
+                    'ada_antrian_sebelumnya' => true,
+                    'antrian' => [
+                        'id' => $antrianSedangDipanggil->id,
+                        'no_antrian' => $antrianSedangDipanggil->no_antrian,
+                        'user_name' => $antrianSedangDipanggil->user->nama,
+                        'poli_name' => $poliName,
+                        'waktu_panggil' => $antrianSedangDipanggil->waktu_panggil ? $antrianSedangDipanggil->waktu_panggil->format('H:i:s') : null
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'ada_antrian_sebelumnya' => false
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in cekStatusAntrianSebelumnya: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()

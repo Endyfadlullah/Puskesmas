@@ -70,9 +70,9 @@
                         class="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-xl text-lg font-semibold inline-block transition duration-200 transform hover:scale-105 shadow-lg">
                         Daftar Antrian
                     </a>
-                    <a href="#layanan"
+                    <a href="{{ route('display') }}"
                         class="border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 rounded-xl text-lg font-semibold inline-block transition duration-200 transform hover:scale-105">
-                        Lihat Layanan
+                        Lihat antrian
                     </a>
                 </div>
             </div>
