@@ -30,17 +30,7 @@ class AntrianPuskesmasSeeder extends Seeder
             );
         }
 
-        // Seed lokets table with upsert
-        $lokets = [
-            ['id' => 1, 'nama_loket' => 'Loket 1'],
-            ['id' => 2, 'nama_loket' => 'Loket 2'],
-        ];
-        foreach ($lokets as $loket) {
-            DB::table('lokets')->updateOrInsert(
-                ['id' => $loket['id']],
-                ['nama_loket' => $loket['nama_loket'], 'updated_at' => now()]
-            );
-        }
+
 
         // Seed users table with upsert
         DB::table('users')->updateOrInsert(
@@ -68,7 +58,6 @@ class AntrianPuskesmasSeeder extends Seeder
                 'is_call' => 0,
                 'status' => 'menunggu',
                 'waktu_panggil' => null,
-                'loket_id' => 1,
                 'updated_at' => now(),
             ]
         );
@@ -84,7 +73,6 @@ class AntrianPuskesmasSeeder extends Seeder
                 'is_call' => 0,
                 'status' => 'menunggu',
                 'waktu_panggil' => null,
-                'loket_id' => 1,
                 'updated_at' => now(),
             ]
         );
@@ -99,7 +87,6 @@ class AntrianPuskesmasSeeder extends Seeder
                 'is_call' => 0,
                 'status' => 'dipanggil',
                 'waktu_panggil' => now(),
-                'loket_id' => 1,
                 'updated_at' => now(),
             ]
         );
@@ -114,7 +101,6 @@ class AntrianPuskesmasSeeder extends Seeder
                 'is_call' => 0,
                 'status' => 'menunggu',
                 'waktu_panggil' => null,
-                'loket_id' => 1,
                 'updated_at' => now(),
             ]
         );

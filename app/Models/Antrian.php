@@ -17,8 +17,7 @@ class Antrian extends Model
         'tanggal_antrian',
         'is_call',
         'status',
-        'waktu_panggil',
-        'loket_id'
+        'waktu_panggil'
     ];
 
     protected $casts = [
@@ -37,10 +36,7 @@ class Antrian extends Model
         return $this->belongsTo(Poli::class);
     }
 
-    public function loket()
-    {
-        return $this->belongsTo(Loket::class);
-    }
+
 
     public function riwayatPanggilan()
     {

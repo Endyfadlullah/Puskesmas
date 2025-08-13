@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->boolean('is_call')->default(false);
             $table->enum('status', ['menunggu', 'dipanggil', 'selesai', 'batal'])->default('menunggu');
             $table->timestamp('waktu_panggil')->nullable();
-            $table->foreignId('loket_id')->nullable()->constrained('lokets')->onDelete('set null');
             $table->timestamps();
         });
     }
