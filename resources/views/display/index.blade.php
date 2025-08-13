@@ -3,6 +3,32 @@
 @section('title', 'Display Antrian - Puskesmas')
 
 @section('content')
+    <style>
+        @keyframes secondPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .second-change {
+            animation: secondPulse 0.2s ease-in-out;
+        }
+
+        .clock-glow {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .time-digit {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+
     <div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700">
         <div class="container mx-auto px-4 py-6 md:py-8">
             <!-- Header -->
@@ -10,6 +36,31 @@
                 <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3">🏥 PUSKESMAS</h1>
                 <p class="text-blue-200 text-lg md:text-xl">Sistem Antrian Digital</p>
                 <div class="w-24 h-1 bg-white mx-auto mt-4 rounded-full"></div>
+
+                <!-- Digital Clock with Running Seconds -->
+                <div class="mt-6 flex justify-center">
+                    <div
+                        class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/30 shadow-2xl animate-pulse clock-glow">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <svg class="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <!-- Animated dot for seconds -->
+                                <div class="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg md:text-xl text-blue-200 font-medium" id="current-date">Loading...</div>
+                                <div class="text-2xl md:text-3xl lg:text-4xl text-white font-bold font-mono tracking-wider time-digit"
+                                    id="current-time">00:00:00</div>
+                                <div class="text-xs text-blue-200 mt-1">Waktu Real-time</div>
+                                <div class="text-xs text-blue-100 mt-1" id="time-format">24 Jam</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Current Queue Display -->
@@ -173,9 +224,10 @@
                     <p class="text-blue-200 text-sm md:text-base font-medium">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
                         </svg>
-                        {{ now()->format('d F Y H:i:s') }}
+                        Sistem Antrian Digital Puskesmas
                     </p>
                 </div>
             </div>
@@ -184,6 +236,120 @@
 
     @push('scripts')
         <script>
+            // Digital Clock with Running Seconds
+            class DigitalClock {
+                constructor() {
+                    this.dateElement = document.getElementById('current-date');
+                    this.timeElement = document.getElementById('current-time');
+                    this.timeFormatElement = document.getElementById('time-format');
+                    this.updateInterval = null;
+                    this.lastSeconds = -1;
+                    this.use24Hour = true; // Default to 24-hour format
+                }
+
+                // Format date to Indonesian format
+                formatDate(date) {
+                    const options = {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    };
+                    return date.toLocaleDateString('id-ID', options);
+                }
+
+                // Format time with leading zeros
+                formatTime(date) {
+                    let hours = date.getHours();
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    if (!this.use24Hour) {
+                        // 12-hour format
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // 0 should be 12
+                        return `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                    } else {
+                        // 24-hour format
+                        return `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
+                    }
+                }
+
+                // Update clock display with visual effects
+                update() {
+                    const now = new Date();
+                    const currentSeconds = now.getSeconds();
+
+                    // Update date (only once per day)
+                    this.dateElement.textContent = this.formatDate(now);
+
+                    // Update time
+                    this.timeElement.textContent = this.formatTime(now);
+
+                    // Add visual effect when seconds change
+                    if (currentSeconds !== this.lastSeconds) {
+                        this.addSecondChangeEffect();
+                        this.lastSeconds = currentSeconds;
+                    }
+                }
+
+                // Add visual effect for second change
+                addSecondChangeEffect() {
+                    this.timeElement.classList.add('scale-110', 'text-yellow-300');
+                    setTimeout(() => {
+                        this.timeElement.classList.remove('scale-110', 'text-yellow-300');
+                    }, 200);
+                }
+
+                // Start the clock
+                start() {
+                    this.update(); // Update immediately
+                    this.updateInterval = setInterval(() => this.update(), 1000); // Update every second
+                }
+
+                // Stop the clock
+                stop() {
+                    if (this.updateInterval) {
+                        clearInterval(this.updateInterval);
+                        this.updateInterval = null;
+                    }
+                }
+
+                // Get current time as string
+                getCurrentTimeString() {
+                    const now = new Date();
+                    return this.formatTime(now);
+                }
+
+                // Get current date as string
+                getCurrentDateString() {
+                    const now = new Date();
+                    return this.formatDate(now);
+                }
+
+                // Toggle between 12 and 24 hour format
+                toggleTimeFormat() {
+                    this.use24Hour = !this.use24Hour;
+                    this.timeFormatElement.textContent = this.use24Hour ? '24 Jam' : '12 Jam';
+                    this.update(); // Update immediately with new format
+                }
+
+                // Set time format
+                setTimeFormat(use24Hour) {
+                    this.use24Hour = use24Hour;
+                    this.timeFormatElement.textContent = this.use24Hour ? '24 Jam' : '12 Jam';
+                    this.update();
+                }
+            }
+
+            // Initialize and start the digital clock
+            let digitalClock;
+            document.addEventListener('DOMContentLoaded', function() {
+                digitalClock = new DigitalClock();
+                digitalClock.start();
+            });
+
             // Audio Player for Queue Calls
             class AudioPlayer {
                 constructor() {
@@ -225,7 +391,7 @@
                     return new Promise((resolve) => {
                         if (audioItem.type === 'audio_file') {
                             const audio = new Audio(audioItem.url);
-                            
+
                             audio.addEventListener('loadeddata', () => {
                                 console.log('Audio loaded, playing...');
                                 audio.play().catch(error => {
@@ -271,7 +437,7 @@
                 async playQueueCall(poliName) {
                     try {
                         console.log('Playing audio for:', poliName);
-                        
+
                         const response = await fetch('{{ route('audio.queue-call') }}', {
                             method: 'POST',
                             headers: {
@@ -487,8 +653,6 @@
 
             // Update display data every 10 seconds
             setInterval(updateDisplayData, 10000);
-
-
         </script>
     @endpush
 @endsection
