@@ -1,5 +1,5 @@
 <!-- Top Navigation -->
-<nav class="bg-white shadow-lg sticky top-0 z-40">
+<nav class="bg-white shadow-lg sticky top-0 z-40 lg:ml-64">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex items-center">
@@ -14,12 +14,7 @@
                 </div>
             </div>
             <div class="hidden md:flex items-center space-x-4">
-               
                 <span class="text-gray-700">Selamat datang, Admin</span>
-                <button onclick="confirmLogout()"
-                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
-                    Logout
-                </button>
             </div>
         </div>
     </div>

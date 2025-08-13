@@ -1,8 +1,8 @@
 <!-- Sidebar -->
 <aside id="sidebar"
-    class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition duration-200 ease-in-out">
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition duration-200 ease-in-out">
     <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">Menu Admin</h2>
+        <h2 class="text-lg font-semibold text-gray-900"></h2>
         <button id="sidebar-close" class="lg:hidden text-gray-500 hover:text-gray-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -11,8 +11,8 @@
         </button>
     </div>
 
-    <nav class="px-6 py-6">
-        <div class="space-y-6">
+    <nav class="px-6 py-6 overflow-y-auto h-full flex flex-col">
+        <div class="space-y-6 flex-1">
             <!-- Dashboard -->
             <div>
                 <a href="{{ route('admin.dashboard') }}"
@@ -99,23 +99,6 @@
                 </a>
             </div>
 
-
-
-
-
-            <!-- Audio Management -->
-            <div>
-                <a href="{{ route('admin.audio.index') }}"
-                    class="flex items-center px-4 py-3 rounded-xl {{ request()->routeIs('admin.audio.*') ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50' }} transition duration-200">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
-                        </path>
-                    </svg>
-                    <span class="font-medium">Audio Management</span>
-                </a>
-            </div>
-
             <!-- Display -->
             <div>
                 <a href="{{ route('display') }}"
@@ -128,6 +111,19 @@
                     <span class="font-medium">Display</span>
                 </a>
             </div>
+        </div>
+
+        <!-- Logout Button at Bottom -->
+        <div class="pt-6 border-t border-gray-200">
+            <button onclick="confirmLogout()"
+                class="w-full flex items-center px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition duration-200">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                <span class="font-medium">Logout</span>
+            </button>
         </div>
     </nav>
 </aside>

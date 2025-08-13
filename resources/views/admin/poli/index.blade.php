@@ -4,152 +4,31 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
-    <!-- Top Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <button id="sidebar-toggle" class="lg:hidden text-gray-700 hover:text-primary mr-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                    <div class="flex-shrink-0">
-                        <h1 class="text-xl md:text-2xl font-bold text-primary">�� Admin Puskesmas</h1>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center space-x-4">
-                    <span class="text-gray-700">Selamat datang, Admin</span>
-                    <button onclick="confirmLogout()"
-                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
-                        Logout
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    @include('admin.partials.top-nav')
 
     <div class="flex">
-        <!-- Sidebar -->
-        <aside id="sidebar"
-            class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition duration-200 ease-in-out">
-            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Menu Admin</h2>
-                <button id="sidebar-close" class="lg:hidden text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
-            </div>
-
-            <nav class="px-6 py-6">
-                <div class="space-y-6">
-                    <!-- Dashboard -->
-                    <div>
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="flex items-center px-4 py-3 rounded-xl {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50' }} transition duration-200">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
-                            </svg>
-                            <span class="font-medium">Dashboard</span>
-                        </a>
-                    </div>
-
-                    <!-- Daftar Antrian -->
-                    <div>
-                        <div class="flex items-center px-4 py-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                                </path>
-                            </svg>
-                            Daftar Antrian
-                        </div>
-                        <div class="mt-3 space-y-1">
-                            <a href="{{ route('admin.poli.umum') }}"
-                                class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.poli.umum') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }} transition duration-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                                <span class="text-sm">Poli Umum</span>
-                            </a>
-                            <a href="{{ route('admin.poli.gigi') }}"
-                                class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.poli.gigi') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50' }} transition duration-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                                <span class="text-sm">Poli Gigi</span>
-                            </a>
-                            <a href="{{ route('admin.poli.jiwa') }}"
-                                class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.poli.jiwa') ? 'bg-purple-50 text-purple-700' : 'text-gray-600 hover:bg-gray-50' }} transition duration-200">
-                                <div class="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                                <span class="text-sm">Poli Jiwa</span>
-                            </a>
-                            <a href="{{ route('admin.poli.tradisional') }}"
-                                class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('admin.poli.tradisional') ? 'bg-yellow-50 text-yellow-700' : 'text-gray-600 hover:bg-gray-50' }} transition duration-200">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                                <span class="text-sm">Poli Tradisional</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Kelola User -->
-                    <div>
-                        <a href="{{ route('admin.users.index') }}"
-                            class="flex items-center px-4 py-3 rounded-xl {{ request()->routeIs('admin.users.*') ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50' }} transition duration-200">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
-                                </path>
-                            </svg>
-                            <span class="font-medium">Kelola User</span>
-                        </a>
-                    </div>
-
-                    <!-- Laporan -->
-                    <div>
-                        <a href="{{ route('admin.laporan.index') }}"
-                            class="flex items-center px-4 py-3 rounded-xl {{ request()->routeIs('admin.laporan.*') ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50' }} transition duration-200">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                </path>
-                            </svg>
-                            <span class="font-medium">Laporan</span>
-                        </a>
-                    </div>
-
-                    <!-- Audio -->
-                    <div>
-                        <a href="{{ route('admin.audio.index') }}"
-                            class="flex items-center px-4 py-3 rounded-xl {{ request()->routeIs('admin.audio.*') ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50' }} transition duration-200">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
-                                </path>
-                            </svg>
-                            <span class="font-medium">Audio</span>
-                        </a>
-                    </div>
-                </div>
-            </nav>
-        </aside>
+        @include('admin.partials.sidebar')
 
         <!-- Main Content -->
-        <div class="flex-1">
-            <!-- Sidebar Overlay -->
-            <div id="sidebar-overlay"
-                class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
-
-            <!-- Content -->
-            <div class="p-6">
-                <div class="max-w-7xl mx-auto">
-                    <!-- Header -->
-                    <div class="mb-8">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $title }}</h1>
-                        <p class="text-gray-600 text-lg">Kelola antrian untuk {{ $title }}</p>
+        <div class="flex-1 lg:ml-64">
+            <div class="px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+                <!-- Header -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $title }}</h1>
+                            <p class="text-gray-600">Kelola antrian untuk {{ $poli->nama ?? 'Poli' }}</p>
+                        </div>
+                        {{-- <a href="{{ route('admin.antrian.tambah') }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Tambah Antrian
+                        </a> --}}
                     </div>
+                </div>
 
                     <!-- Table -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -254,10 +133,7 @@
                                         <tr>
                                             <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                                                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                                    </path>
                                                 </svg>
                                                 <p class="text-lg font-medium">Tidak ada antrian</p>
                                                 <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
@@ -352,32 +228,31 @@
                                                 <div>
                                                     <span class="font-medium text-gray-700">Jenis Kelamin:</span>
                                                     <span class="text-gray-600">{{ $antrian->user?->jenis_kelamin }}</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-medium text-gray-700">Nomor HP:</span>
-                                                    <span class="text-gray-600">{{ $antrian->user?->no_hp }}</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-medium text-gray-700">Nomor KTP:</span>
-                                                    <span class="text-gray-600">{{ $antrian->user?->no_ktp }}</span>
-                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium text-gray-700">Nomor HP:</span>
+                                                <span class="text-gray-600">{{ $antrian->user?->no_hp }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium text-gray-700">Nomor KTP:</span>
+                                                <span class="text-gray-600">{{ $antrian->user?->no_ktp }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            @empty
-                                <div class="text-center py-8 text-gray-500">
-                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                    <p class="text-lg font-medium">Tidak ada antrian</p>
-                                    <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
-                                </div>
-                            @endforelse
-                        </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                <p class="text-lg font-medium">Tidak ada antrian</p>
+                                <p class="text-sm text-gray-400">Belum ada antrian yang terdaftar</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

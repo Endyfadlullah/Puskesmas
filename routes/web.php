@@ -8,7 +8,6 @@ use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AudioController;
 
-
 // Landing Page
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
@@ -56,17 +55,22 @@ Route::middleware('auth')->group(function () {
 // Protected Routes (Admin)
 Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    
     // Per-poli pages
     Route::get('/admin/poli/umum', [AdminController::class, 'poliUmum'])->name('admin.poli.umum');
     Route::get('/admin/poli/gigi', [AdminController::class, 'poliGigi'])->name('admin.poli.gigi');
     Route::get('/admin/poli/jiwa', [AdminController::class, 'poliJiwa'])->name('admin.poli.jiwa');
     Route::get('/admin/poli/tradisional', [AdminController::class, 'poliTradisional'])->name('admin.poli.tradisional');
+    
+    // Antrian management routes
     Route::post('/admin/panggil-antrian', [AdminController::class, 'panggilAntrian'])->name('admin.panggil-antrian');
     Route::post('/admin/selesai-antrian', [AdminController::class, 'selesaiAntrian'])->name('admin.selesai-antrian');
     Route::post('/admin/antrian/batal', [AdminController::class, 'batalAntrian'])->name('admin.batal-antrian');
     Route::post('/admin/panggil-antrian/{antrian}', [AdminController::class, 'panggilAntrianById'])->name('admin.panggil-antrian-id');
     Route::post('/admin/play-audio', [AdminController::class, 'playQueueCallAudio'])->name('admin.play-audio');
     Route::post('/admin/panggil-selanjutnya', [AdminController::class, 'panggilSelanjutnya'])->name('admin.panggil-selanjutnya');
+    
+    // Audio management
     Route::get('/admin/audio', [AudioController::class, 'index'])->name('admin.audio.index');
 
     // User Management Routes
@@ -79,6 +83,7 @@ Route::middleware('auth:admin')->group(function () {
 
     // Laporan Routes
     Route::get('/admin/laporan', [AdminController::class, 'laporan'])->name('admin.laporan.index');
+    Route::get('/admin/laporan/pdf', [AdminController::class, 'exportPDF'])->name('admin.laporan.pdf');
     Route::get('/admin/laporan/export-pdf', [AdminController::class, 'exportPDF'])->name('admin.laporan.export-pdf');
     Route::get('/admin/laporan/export-excel', [AdminController::class, 'exportExcel'])->name('admin.laporan.export-excel');
 
@@ -89,10 +94,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/antrian/{antrian}/cetak', [AdminController::class, 'cetakAntrian'])->name('admin.antrian.cetak');
 
     Route::post('/admin/cek-status-antrian-sebelumnya', [AdminController::class, 'cekStatusAntrianSebelumnya'])->name('admin.cek-status-antrian-sebelumnya');
-
 });
-
-
 
 // Audio Routes
 Route::post('/audio/queue-call', [AudioController::class, 'getQueueCallAudio'])->name('audio.queue-call');
@@ -102,4 +104,3 @@ Route::post('/audio/test', [AudioController::class, 'testAudio'])->name('audio.t
 // API Routes for display
 Route::get('/api/check-new-calls', [DisplayController::class, 'checkNewCalls'])->name('api.check-new-calls');
 Route::get('/api/display-data', [DisplayController::class, 'getDisplayData'])->name('api.display-data');
-

@@ -87,27 +87,33 @@
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Berbagai layanan kesehatan yang tersedia</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                 <div
                     class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 animate-slide-up">
+                    <div class="text-4xl md:text-5xl mb-4">🦷</div>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Gigi</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Layanan kesehatan gigi dan mulut untuk semua usia</p>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 animate-slide-up"
+                    style="animation-delay: 0.1s;">
                     <div class="text-4xl md:text-5xl mb-4">👨‍⚕️</div>
                     <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Umum</h3>
                     <p class="text-gray-600 text-sm md:text-base">Layanan pemeriksaan kesehatan umum untuk semua usia</p>
                 </div>
 
                 <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 animate-slide-up"
-                    style="animation-delay: 0.1s;">
-                    <div class="text-4xl md:text-5xl mb-4">👶</div>
-                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Anak</h3>
-                    <p class="text-gray-600 text-sm md:text-base">Layanan kesehatan khusus untuk anak-anak</p>
+                    style="animation-delay: 0.2s;">
+                    <div class="text-4xl md:text-5xl mb-4">🌿</div>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Tradisional</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Layanan kesehatan dengan pengobatan tradisional</p>
                 </div>
 
                 <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 animate-slide-up"
-                    style="animation-delay: 0.2s;">
-                    <div class="text-4xl md:text-5xl mb-4">🤰</div>
-                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Ibu Hamil</h3>
-                    <p class="text-gray-600 text-sm md:text-base">Layanan kesehatan untuk ibu hamil dan keluarga berencana
-                    </p>
+                    style="animation-delay: 0.3s;">
+                    <div class="text-4xl md:text-5xl mb-4">🧠</div>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Poli Jiwa</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Layanan kesehatan jiwa dan konseling</p>
                 </div>
             </div>
         </div>
@@ -211,9 +217,10 @@
                 <div>
                     <h4 class="text-lg md:text-xl font-semibold mb-4">Layanan</h4>
                     <ul class="space-y-2 text-gray-400 text-sm md:text-base">
+                        <li>Poli Gigi</li>
                         <li>Poli Umum</li>
-                        <li>Poli Anak</li>
-                        <li>Poli Ibu Hamil</li>
+                        <li>Poli Tradisional</li>
+                        <li>Poli Jiwa</li>
                     </ul>
                 </div>
                 <div>
